@@ -1,18 +1,9 @@
 # SafeZone
 
-## Gustavo
-- Home
-
-## Idel
-- Ocorrências
-
-## Everton 
-- Minhas Ocorrências
-
-## Pedro
-- Criar ocorrências
-- Editar ocorrências
-
-## Danilo 
-- Login
-- Criar Cadastro 
+| Sistema | Usuário | Permissões |
+|---|---|---|
+| SafeZone | Gustavo | Home |
+| SafeZone | Idel | Ocorrências |
+| SafeZone | Everton | Minhas Ocorrências |
+| SafeZone | Pedro | Criar ocorrências, Editar ocorrências |
+| SafeZone | Danilo | Login, Criar Cadastro |
