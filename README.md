@@ -12,3 +12,7 @@
 ## Pedro
 - Criar ocorrências
 - Editar ocorrências
+
+## Danilo 
+- Login
+- Criar Cadastro 
