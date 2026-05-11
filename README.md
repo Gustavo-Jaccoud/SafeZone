@@ -8,3 +8,7 @@
 
 ## Everton 
 - Minhas Ocorrências
+
+## Pedro
+- Criar ocorrências
+- Editar ocorrências
