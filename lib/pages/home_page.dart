@@ -1,49 +1,50 @@
 import 'package:SafeZone/widgets/custom_map.dart';
 import 'package:flutter/material.dart';
 
-import '../widgets/custom_app_bar.dart';
-import '../widgets/custom_bottom_nav.dart';
+class HomePage extends StatelessWidget {
+  final Function(double, double) onLocationChanged;
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  int paginaAtual = 0;
-  String bairroAtual = "Farolandia";
-
-  void _onLocationChanged(double lat, double lng) {
-    print("Nova localização: $lat, $lng");
-  }
+  const HomePage({super.key, required this.onLocationChanged});
 
   @override
   Widget build(BuildContext context) {
-    final paginas = [
-      CustomMapWidget(
-        showUserLocation: true,
-        onLocationChanged: _onLocationChanged,
-      ),
-      const Center(child: Text('Ocorrências')),
-      const Center(child: Text('Minhas Ocorrências')),
-    ];
+    return Stack(
+      children: [
+        CustomMapWidget(
+          showUserLocation: true,
+          onLocationChanged: onLocationChanged,
+        ),
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: CustomAppBar(),
-      body: paginas[paginaAtual],
-      bottomNavigationBar: CustomBottomNav(
-        paginaAtual: paginaAtual,
-        bairroAtual: bairroAtual,
-        onTap: (index) {
-          setState(() {
-            paginaAtual = index;
-          });
-        },
-      ),
+        Positioned(
+          bottom: 110,
+          right: 20,
+          child: FloatingActionButton(
+            heroTag: "center_map",
+            onPressed: () {},
+            child: const Icon(Icons.my_location),
+          ),
+        ),
+
+        Positioned(
+          bottom: 190,
+          left: 20,
+          child: FloatingActionButton(
+            heroTag: "left_action_1",
+            onPressed: () {},
+            child: const Icon(Icons.phone),
+          ),
+        ),
+
+        Positioned(
+          bottom: 110,
+          left: 20,
+          child: FloatingActionButton(
+            heroTag: "left_action_2",
+            onPressed: () {},
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
     );
   }
 }
