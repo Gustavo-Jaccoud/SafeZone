@@ -1,3 +1,4 @@
+import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/widgets/custom_map.dart';
 import 'package:flutter/material.dart';
 
@@ -18,30 +19,48 @@ class HomePage extends StatelessWidget {
         Positioned(
           bottom: 110,
           right: 20,
-          child: FloatingActionButton(
-            heroTag: "center_map",
-            onPressed: () {},
-            child: const Icon(Icons.my_location),
+          child: SizedBox(
+            width: 58,
+            height: 58,
+            child: FloatingActionButton(
+              heroTag: "center_map",
+              onPressed: () {},
+              shape: const CircleBorder(),
+              backgroundColor: AppColors.white,
+              child: const Icon(Icons.my_location, color: AppColors.primary),
+            ),
           ),
         ),
 
         Positioned(
           bottom: 190,
           left: 20,
-          child: FloatingActionButton(
-            heroTag: "left_action_1",
-            onPressed: () {},
-            child: const Icon(Icons.phone),
+          child: SizedBox(
+            width: 58,
+            height: 58,
+            child: FloatingActionButton(
+              heroTag: "left_action_1",
+              onPressed: () {},
+              shape: const CircleBorder(),
+              backgroundColor: AppColors.white,
+              child: const Icon(Icons.phone, color: AppColors.primary),
+            ),
           ),
         ),
 
         Positioned(
           bottom: 110,
           left: 20,
-          child: FloatingActionButton(
-            heroTag: "left_action_2",
-            onPressed: () {},
-            child: const Icon(Icons.add),
+          child: SizedBox(
+            width: 58,
+            height: 58,
+            child: FloatingActionButton(
+              heroTag: "left_action_2",
+              onPressed: () {},
+              shape: const CircleBorder(),
+              backgroundColor: AppColors.white,
+              child: const Icon(Icons.add_location, color: AppColors.primary),
+            ),
           ),
         ),
       ],

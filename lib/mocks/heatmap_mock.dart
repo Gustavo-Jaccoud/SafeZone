@@ -3,7 +3,14 @@ import 'dart:convert';
 String mockedRiskGeoJson(){
     return jsonEncode({
   "type": "FeatureCollection",
-  "features": [
+  "features": [{
+      "type": "Feature",
+      "properties": { "risk": 10 },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-37.0612574, -10.9684319]
+      }
+    },
     {
       "type": "Feature",
       "properties": { "risk": 1 },

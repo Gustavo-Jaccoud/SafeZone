@@ -18,7 +18,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> paginas = [
-      HomePage(onLocationChanged: _onLocationChanged),
+      Padding(padding: EdgeInsets.only(top: 80),child:HomePage(onLocationChanged: _onLocationChanged) ,),
       const Center(child: Text('Ocorrências')),
       const Center(child: Text('Minhas Ocorrências')),
     ];

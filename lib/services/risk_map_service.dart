@@ -18,17 +18,23 @@ class RiskMapService {
       HeatmapLayer(
         id: layerId,
         sourceId: sourceId,
+        heatmapIntensity: 1.0,
+        heatmapOpacity: 0.55,
+        heatmapWeightExpression: [
+          'interpolate',
+          ['linear'],
+          ['get', 'risk'],
 
-        heatmapRadius: 70,
-        heatmapIntensity: 2.0,
-        heatmapOpacity: 0.7,
-
+          0, 0,
+          5, 0.5,
+          10, 1.0,
+        ],
         heatmapColorExpression: [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
 
-          0.0, "#78BE4D", // seguro
+          0.0, "rgba(120, 190, 77, 1)", // seguro
           0.3, "#F6AE2D", // atenção
           0.7, "#CC3030", // risco
         ],
@@ -48,12 +54,9 @@ class RiskMapService {
           ['zoom'],
 
           0, 0.5,
-          10,
-          1.0,
-          14,
-          1.5,
-          18,
-          2.0,
+          10, 1.0,
+          14, 1.5,
+          18, 2.0,
         ],
       ),
     );

@@ -21,10 +21,21 @@ class CompassController {
   static const double threshold = 15.0;
 
   void start() {
+    _configureNativeCompass();
     _startCompassListener();
     _startAnimation();
   }
-
+  void _configureNativeCompass() async {
+    await mapboxMap.compass.updateSettings(
+      CompassSettings(
+        enabled: true,
+        position: OrnamentPosition.TOP_RIGHT, 
+        marginTop: 20.0, 
+        marginRight: 10.0,                     
+        fadeWhenFacingNorth: false,      
+      ),
+    );
+  }
   void dispose() {
     _subscription?.cancel();
     _ticker.dispose();

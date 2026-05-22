@@ -90,28 +90,37 @@ class _CustomMapWidgetState extends State<CustomMapWidget> {
   @override
   Widget build(BuildContext context) {
     return MapWidget(
-        cameraOptions: CameraOptions(
-          zoom: widget.zoom,
-          pitch: widget.pitch,
-          bearing: 0,
-        ),
+      cameraOptions: CameraOptions(
+        zoom: widget.zoom,
+        pitch: widget.pitch,
+        bearing: 0,
+      ),
 
-        onMapCreated: (controller) async {
-          mapboxMap = controller;
+      onMapCreated: (controller) async {
+        mapboxMap = controller;
 
-          await Future.delayed(const Duration(milliseconds: 300));
+        await Future.delayed(const Duration(milliseconds: 300));
 
-          // 🧠 RISK MAP
-          
-          await RiskMapService.build(controller);
+        // 🧠 RISK MAP
 
-          // Bulsula 
-          compassController = CompassController(controller);
-          compassController?.start();
+        await RiskMapService.build(controller);
+        await controller.scaleBar.updateSettings(
+          ScaleBarSettings(
+            enabled: true, 
+            position: OrnamentPosition.TOP_LEFT,
+            marginTop: 20.0,
+            marginLeft: 10.0, 
+            isMetricUnits:true, 
+          ),
+        );
 
-          // LOCALIZAÇÃO
-          await _setupUserLocation();
-        },
-      );
+        // Bulsula
+        compassController = CompassController(controller);
+        compassController?.start();
+
+        // LOCALIZAÇÃO
+        await _setupUserLocation();
+      },
+    );
   }
 }
