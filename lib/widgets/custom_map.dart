@@ -1,3 +1,4 @@
+import 'package:SafeZone/controllers/map_controller.dart';
 import 'package:SafeZone/mocks/heatmap_mock.dart';
 import 'package:SafeZone/models/heatmap_point.dart';
 import 'package:SafeZone/services/heatmap_service.dart';
@@ -117,6 +118,7 @@ class _CustomMapWidgetState extends State<CustomMapWidget> {
         // Bulsula
         compassController = CompassController(controller);
         compassController?.start();
+        MapControllerService.setMap(controller);
 
         // LOCALIZAÇÃO
         await _setupUserLocation();

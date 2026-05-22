@@ -1,4 +1,5 @@
 import 'package:SafeZone/core/storage/location_cache.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
@@ -36,6 +37,19 @@ class LocationService {
     );
   }
 
+  Future<Placemark?> getPlaceFromCoords(double lat, double lng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(lat, lng);
+
+      if (placemarks.isNotEmpty) {
+        return placemarks.first; // cidade
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
   Future<void> saveCache(double lat, double lng) async {
     await LocationCache.save(lat, lng);
   }

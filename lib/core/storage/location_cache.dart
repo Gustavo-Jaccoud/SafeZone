@@ -7,7 +7,6 @@ class LocationCache {
 
     await prefs.setDouble('lat', lat);
     await prefs.setDouble('lng', lng);
-    print(lat);
   }
 
   static Future<Position?> get() async {
@@ -16,7 +15,6 @@ class LocationCache {
     final lat = prefs.getDouble('lat');
     final lng = prefs.getDouble('lng');
 
-    print(lat);
     if (lat == null || lng == null) return null;
 
     return Position(lng, lat);
