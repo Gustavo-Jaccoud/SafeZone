@@ -40,7 +40,7 @@ class CustomAppBar extends StatelessWidget
                   mainAxisAlignment:
                       MainAxisAlignment.spaceBetween,
 
-                  children: const [
+                  children:[
                     Text.rich(
                       TextSpan(
                         children: [
@@ -49,7 +49,7 @@ class CustomAppBar extends StatelessWidget
 
                             style: TextStyle(
                               color: AppColors.primary,
-                              fontSize: 20,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -59,15 +59,17 @@ class CustomAppBar extends StatelessWidget
 
                             style: TextStyle(
                               color: AppColors.textDark,
-                              fontSize: 20,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                    FlutterLogo(),
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 55,
+                    ),
                   ],
                 ),
               ),

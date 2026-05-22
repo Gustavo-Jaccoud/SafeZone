@@ -34,7 +34,7 @@ class RiskMapService {
           ['linear'],
           ['heatmap-density'],
 
-          0.0, "rgba(120, 190, 77, 1)", // seguro
+          0.0, "#78BE4D", // seguro
           0.3, "#F6AE2D", // atenção
           0.7, "#CC3030", // risco
         ],
