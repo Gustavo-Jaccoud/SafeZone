@@ -47,7 +47,7 @@ class OcorrenciaCard extends StatelessWidget {
         boxShadow: [
           // Sombra sutil pra dar profundidade
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withAlpha(100),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

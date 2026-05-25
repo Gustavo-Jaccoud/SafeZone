@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class OcorrenciasPainel extends StatelessWidget {
   final ScrollController scrollController;
@@ -10,7 +11,7 @@ class OcorrenciasPainel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFFE5E5E5), // Fundo cinza claro do Figma
+        color: Color.fromARGB(200, 241, 241, 241), 
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -56,7 +57,7 @@ class OcorrenciasPainel extends StatelessWidget {
                 _buildOcorrenciaItem(Icons.front_hand, "Sequestro", "1 caso", "Médio", AppColors.warning),
                 _buildOcorrenciaItem(Icons.gavel, "Homicídio", "1 caso", "Alto", AppColors.danger),
                 
-                const SizedBox(height: 120), // Um espaçamento extra no fundo para não bater na BottomNav
+                const SizedBox(height: 120),
               ],
             ),
           ),
@@ -112,60 +113,104 @@ class OcorrenciasPainel extends StatelessWidget {
     );
   }
 
-  Widget _buildGraficoCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: SweepGradient(
-                colors: [Colors.grey, AppColors.warning, Colors.orange, AppColors.danger, Colors.grey],
-                stops: [0.0, 0.25, 0.5, 0.75, 1.0],
-              ),
-            ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              children: [
-                _buildLegendaItem(Colors.grey, "Vandalismo"),
-                _buildLegendaItem(AppColors.warning, "Roubo"),
-                _buildLegendaItem(Colors.orange, "Acidente Trânsito"),
-                _buildLegendaItem(AppColors.danger, "Agressão"),
+
+
+Widget _buildGraficoCard() {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 120,
+          height: 120,
+          child: PieChart(
+            PieChartData(
+              sectionsSpace: 1,
+              centerSpaceRadius: 0, // 0 = pizza cheia
+              borderData: FlBorderData(show: false),
+              sections: [
+                PieChartSectionData(
+                  value: 1,
+                  color: Colors.grey,
+                  title: '',
+                  radius: 60,
+                ),
+                PieChartSectionData(
+                  value: 1,
+                  color: AppColors.warning,
+                  title: '',
+                  radius: 60,
+                ),
+                PieChartSectionData(
+                  value: 1,
+                  color: Colors.orange,
+                  title: '',
+                  radius: 60,
+                ),
+                PieChartSectionData(
+                  value: 1,
+                  color: AppColors.danger,
+                  title: '',
+                  radius: 60,
+                ),
               ],
             ),
-          )
-        ],
-      ),
-    );
-  }
+          ),
+        ),
 
-  Widget _buildLegendaItem(Color cor, String texto) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
+        const SizedBox(width: 20),
+
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(width: 16, height: 16, decoration: BoxDecoration(color: cor, borderRadius: BorderRadius.circular(4))),
-              const SizedBox(width: 8),
-              Text(texto, style: const TextStyle(fontSize: 13)),
+              _buildLegendaItem(Colors.grey, "Vandalismo"),
+              _buildLegendaItem(AppColors.warning, "Roubo"),
+              _buildLegendaItem(Colors.orange, "Acidente Trânsito"),
+              _buildLegendaItem(AppColors.danger, "Agressão"),
             ],
           ),
-          const Text("1", style: TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildLegendaItem(Color cor, String texto) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 14,
+              height: 14,
+              decoration: BoxDecoration(
+                color: cor,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              texto,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ],
+        ),
+        const Text(
+          "1",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildSeccaoMes(String mes) {
     return Padding(

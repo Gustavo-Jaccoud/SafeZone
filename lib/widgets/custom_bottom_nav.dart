@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_colors.dart';
 
 class CustomBottomNav extends StatelessWidget {
@@ -15,7 +16,6 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(bairroAtual);
     return Column(
       mainAxisSize: MainAxisSize.min,
 
@@ -23,10 +23,7 @@ class CustomBottomNav extends StatelessWidget {
         Container(
           width: double.infinity,
 
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
 
           decoration: const BoxDecoration(
             color: AppColors.primaryDark,
@@ -39,10 +36,7 @@ class CustomBottomNav extends StatelessWidget {
 
           child: Row(
             children: [
-              Icon(
-                Icons.location_on,
-                color: AppColors.primary,
-              ),
+              Icon(Icons.location_on, color: AppColors.primary),
 
               SizedBox(width: 8),
 
@@ -68,19 +62,16 @@ class CustomBottomNav extends StatelessWidget {
 
           onTap: onTap,
 
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
+          items:  [
+            BottomNavigationBarItem(icon: SvgPicture.asset('assets/images/mapa.svg', height: 20, colorFilter: ColorFilter.mode(paginaAtual == 0 ?AppColors.primary:AppColors.textDark, BlendMode.srcIn)), label: 'Explorar'),
 
             BottomNavigationBarItem(
-              icon: Icon(Icons.warning_amber_rounded),
+              icon: SvgPicture.asset('assets/images/ocorrencias.svg', height: 20, colorFilter: ColorFilter.mode(paginaAtual == 1 ?AppColors.primary:AppColors.textDark, BlendMode.srcIn)),
               label: 'Ocorrências',
             ),
 
             BottomNavigationBarItem(
-              icon: Icon(Icons.assignment_ind_outlined),
+              icon: SvgPicture.asset('assets/images/minhas_ocorrencias.svg', height: 20, colorFilter: ColorFilter.mode(paginaAtual == 2 ?AppColors.primary:AppColors.textDark, BlendMode.srcIn)),
               label: 'Minhas Ocorrências',
             ),
           ],

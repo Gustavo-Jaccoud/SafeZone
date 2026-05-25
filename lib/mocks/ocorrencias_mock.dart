@@ -38,4 +38,10 @@ final List<Ocorrencia> ocorrenciasMock = [
     bairro: 'Aracaju',
     data: DateTime(2026, 2, 7),
   ),
+  Ocorrencia(
+    id: '7',
+    tipo: TipoOcorrencia.vandalismo,
+    bairro: 'Aracaju',
+    data: DateTime(2026, 2, 8),
+  ),
 ];

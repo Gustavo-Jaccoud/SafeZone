@@ -63,7 +63,7 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
     final total = _ocorrencias.length.toString().padLeft(2, '0');
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 30, 16, 70),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch, // estica largura
         children: [
@@ -79,7 +79,7 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
                 ? const _EmptyState()
                 : Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F1F1), // cinza claro
+                      color: AppColors.white,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
