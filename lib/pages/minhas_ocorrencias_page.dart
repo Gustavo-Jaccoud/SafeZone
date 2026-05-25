@@ -52,9 +52,11 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
 
   // Disparado pelo botão editar do card
   void _editar(Ocorrencia o) {
-    // TODO: trocar pelo Navigator.push quando a tela de edição existir
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Editar ocorrência: ${o.tipo.label}')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>  EditarOcorrenciaPage(ocorrencia: o,),
+      ),
     );
   }
 
