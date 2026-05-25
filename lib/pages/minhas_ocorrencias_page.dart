@@ -1,3 +1,4 @@
+import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
 import '../models/ocorrencia.dart';
 import '../mocks/ocorrencias_mock.dart';
@@ -128,8 +129,7 @@ class _ContadorCard extends StatelessWidget {
       child: Row(
         children: [
           // Ícone de prancheta
-          const Icon(Icons.assignment_outlined,
-              color: AppColors.textDark, size: 22),
+          AppIcons.boletim_ocorrencia,
           const SizedBox(width: 10),
           // Texto "Suas Ocorrências:" empurra o número pra direita
           const Expanded(
@@ -166,7 +166,7 @@ class _CabecalhoMes extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.calendar_today_outlined,
+        const Icon(Icons.calendar_month,
             size: 16, color: AppColors.textDark),
         const SizedBox(width: 6),
         Text(

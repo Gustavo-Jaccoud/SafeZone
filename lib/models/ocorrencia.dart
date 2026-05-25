@@ -1,11 +1,18 @@
 // Tipos possíveis de ocorrência (lista fechada)
+import 'package:SafeZone/theme/app_icons.dart';
+import 'package:flutter/material.dart';
+
 enum TipoOcorrencia {
   vandalismo,
   agressao,
   abusoSexual,
+  ameaca,
+  homicidio,
+  roubo,
+  sequestro,
+  acidenteTransito,
 }
 
-// Extension adiciona getters ao enum sem mexer na declaração
 extension TipoOcorrenciaExt on TipoOcorrencia {
   String get label {
     switch (this) {
@@ -15,18 +22,58 @@ extension TipoOcorrenciaExt on TipoOcorrencia {
         return 'Agressão';
       case TipoOcorrencia.abusoSexual:
         return 'Abuso sexual';
+      case TipoOcorrencia.ameaca:
+        return 'Ameaça';
+      case TipoOcorrencia.homicidio:
+        return 'Homicídio';
+      case TipoOcorrencia.roubo:
+        return 'Roubo';
+      case TipoOcorrencia.sequestro:
+        return 'Sequestro';
+      case TipoOcorrencia.acidenteTransito:
+        return 'Acidente de trânsito';
     }
   }
 
-  // Caminho da imagem do ícone de cada tipo
-  String get iconAsset {
+  Color get color {
     switch (this) {
       case TipoOcorrencia.vandalismo:
-        return 'assets/images/icon_vandalismo.png';
+        return const Color(0xFF5F30CC);
       case TipoOcorrencia.agressao:
-        return 'assets/images/icon_agressao.png';
+        return const Color(0xFFCC3030);
       case TipoOcorrencia.abusoSexual:
-        return 'assets/images/icon_abuso_sexual.png';
+        return const Color(0xFFF56BE7);
+      case TipoOcorrencia.ameaca:
+        return const Color(0xFF606060);
+      case TipoOcorrencia.homicidio:
+        return const Color(0xFFAC2929);
+      case TipoOcorrencia.roubo:
+        return const Color(0xFFF6AE2D);
+      case TipoOcorrencia.sequestro:
+        return const Color(0xFF000000);
+      case TipoOcorrencia.acidenteTransito:
+        return const Color(0xFFF6812D);
+    }
+  }
+
+  Widget get iconAsset {
+    switch (this) {
+      case TipoOcorrencia.vandalismo:
+        return AppIcons.vandalismo;
+      case TipoOcorrencia.agressao:
+        return AppIcons.agressao;
+      case TipoOcorrencia.abusoSexual:
+        return AppIcons.abusoSexual;
+      case TipoOcorrencia.ameaca:
+        return AppIcons.ameaca;
+      case TipoOcorrencia.homicidio:
+        return AppIcons.homicidio;
+      case TipoOcorrencia.roubo:
+        return AppIcons.roubo;
+      case TipoOcorrencia.sequestro:
+        return AppIcons.sequestro;
+      case TipoOcorrencia.acidenteTransito:
+        return AppIcons.acidenteTransito;
     }
   }
 }

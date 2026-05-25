@@ -1,3 +1,5 @@
+import 'package:SafeZone/models/ocorrencia.dart';
+import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -48,14 +50,14 @@ class OcorrenciasPainel extends StatelessWidget {
 
                 // LISTA: Histórico Mensal
                 _buildSeccaoMes("Março 2026"),
-                _buildOcorrenciaItem(Icons.gavel, "Homicídio", "1 caso", "Alto", AppColors.danger),
-                _buildOcorrenciaItem(Icons.directions_car, "Acidente de Trânsito", "1 caso", "Baixo", AppColors.primary),
+                _buildOcorrenciaItem(TipoOcorrencia.homicidio, "1 caso", "Alto", AppColors.danger),
+                _buildOcorrenciaItem(TipoOcorrencia.acidenteTransito, "1 caso", "Baixo", AppColors.primary),
                 
                 const SizedBox(height: 16),
                 _buildSeccaoMes("Fevereiro 2026"),
-                _buildOcorrenciaItem(Icons.directions_car, "Acidente de Trânsito", "1 caso", "Baixo", AppColors.primary),
-                _buildOcorrenciaItem(Icons.front_hand, "Sequestro", "1 caso", "Médio", AppColors.warning),
-                _buildOcorrenciaItem(Icons.gavel, "Homicídio", "1 caso", "Alto", AppColors.danger),
+                _buildOcorrenciaItem(TipoOcorrencia.acidenteTransito, "1 caso", "Baixo", AppColors.primary),
+                _buildOcorrenciaItem(TipoOcorrencia.sequestro, "1 caso", "Médio", AppColors.warning),
+                _buildOcorrenciaItem(TipoOcorrencia.homicidio, "1 caso", "Alto", AppColors.danger),
                 
                 const SizedBox(height: 120),
               ],
@@ -75,7 +77,7 @@ class OcorrenciasPainel extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.shield_outlined, size: 40, color: AppColors.textDark),
+          AppIcons.boletim_ocorrencia,
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -135,25 +137,25 @@ Widget _buildGraficoCard() {
               sections: [
                 PieChartSectionData(
                   value: 1,
-                  color: Colors.grey,
+                  color: TipoOcorrencia.vandalismo.color,
                   title: '',
                   radius: 60,
                 ),
                 PieChartSectionData(
                   value: 1,
-                  color: AppColors.warning,
+                  color: TipoOcorrencia.roubo.color,
                   title: '',
                   radius: 60,
                 ),
                 PieChartSectionData(
                   value: 1,
-                  color: Colors.orange,
+                  color: TipoOcorrencia.acidenteTransito.color,
                   title: '',
                   radius: 60,
                 ),
                 PieChartSectionData(
                   value: 1,
-                  color: AppColors.danger,
+                  color: TipoOcorrencia.agressao.color,
                   title: '',
                   radius: 60,
                 ),
@@ -168,10 +170,10 @@ Widget _buildGraficoCard() {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendaItem(Colors.grey, "Vandalismo"),
-              _buildLegendaItem(AppColors.warning, "Roubo"),
-              _buildLegendaItem(Colors.orange, "Acidente Trânsito"),
-              _buildLegendaItem(AppColors.danger, "Agressão"),
+              _buildLegendaItem(TipoOcorrencia.vandalismo),
+              _buildLegendaItem(TipoOcorrencia.roubo),
+              _buildLegendaItem(TipoOcorrencia.acidenteTransito),
+              _buildLegendaItem(TipoOcorrencia.agressao),
             ],
           ),
         ),
@@ -180,7 +182,7 @@ Widget _buildGraficoCard() {
   );
 }
 
-Widget _buildLegendaItem(Color cor, String texto) {
+Widget _buildLegendaItem(TipoOcorrencia tipo) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 4),
     child: Row(
@@ -192,13 +194,13 @@ Widget _buildLegendaItem(Color cor, String texto) {
               width: 14,
               height: 14,
               decoration: BoxDecoration(
-                color: cor,
+                color: tipo.color,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
             const SizedBox(width: 8),
             Text(
-              texto,
+              tipo.label,
               style: const TextStyle(fontSize: 13),
             ),
           ],
@@ -225,7 +227,7 @@ Widget _buildLegendaItem(Color cor, String texto) {
     );
   }
 
-  Widget _buildOcorrenciaItem(IconData icone, String titulo, String subtitulo, String tagText, Color tagColor) {
+  Widget _buildOcorrenciaItem(TipoOcorrencia tipo, String subtitulo, String tagText, Color tagColor) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       padding: const EdgeInsets.all(12),
@@ -235,15 +237,15 @@ Widget _buildLegendaItem(Color cor, String texto) {
       ),
       child: Row(
         children: [
-          Icon(icone, size: 28, color: AppColors.textDark),
+          tipo.iconAsset,
           const SizedBox(width: 12),
-          Container(width: 3, height: 30, color: tagColor),
+          Container(width: 3, height: 30, color: tipo.color),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(titulo, style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(tipo.label, style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 14)),
                 Text(subtitulo, style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),

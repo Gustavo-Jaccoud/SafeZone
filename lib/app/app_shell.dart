@@ -62,7 +62,7 @@ class _AppShellState extends State<AppShell> {
             DraggableScrollableSheet(
               initialChildSize: 0.65,
               minChildSize: 0.2,
-              maxChildSize: 0.85,
+              maxChildSize: 0.88,
               builder: (context, scrollController) {
                 // Adicionamos um NotificationListener para detectar se o usuário 
                 // arrastou o painel todo para baixo para fechar

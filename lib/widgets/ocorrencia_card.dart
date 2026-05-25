@@ -16,18 +16,6 @@ class OcorrenciaCard extends StatelessWidget {
     required this.onDelete,
   });
 
-  // Define a cor da borda de acordo com o tipo da ocorrência
-  Color get _borderColor {
-    switch (ocorrencia.tipo) {
-      case TipoOcorrencia.vandalismo:
-        return const Color(0xFF6C4DE0); // roxo
-      case TipoOcorrencia.agressao:
-        return AppColors.danger; // vermelho
-      case TipoOcorrencia.abusoSexual:
-        return const Color(0xFFE05A8E); // rosa
-    }
-  }
-
   // Formata a data no padrão dd/mm/aaaa
   String _formatData(DateTime d) {
     // Função auxiliar pra colocar zero à esquerda (5 -> "05")
@@ -43,7 +31,7 @@ class OcorrenciaCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12), // cantos arredondados
-        border: Border.all(color: _borderColor, width: 1.5), // borda colorida
+        border: Border.all(color: ocorrencia.tipo.color, width: 1.5), // borda colorida
         boxShadow: [
           // Sombra sutil pra dar profundidade
           BoxShadow(
@@ -122,30 +110,13 @@ class _IconeOcorrencia extends StatelessWidget {
   final TipoOcorrencia tipo;
   const _IconeOcorrencia({required this.tipo});
 
-  // Ícone padrão caso o asset não exista
-  IconData get _fallbackIcon {
-    switch (tipo) {
-      case TipoOcorrencia.vandalismo:
-        return Icons.broken_image;
-      case TipoOcorrencia.agressao:
-        return Icons.front_hand;
-      case TipoOcorrencia.abusoSexual:
-        return Icons.report_problem;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 36,
       height: 36,
-      child: Image.asset(
-        tipo.iconAsset,
-        fit: BoxFit.contain,
-        // se a imagem não carregar, mostra um ícone do Material
-        errorBuilder: (_, __, ___) =>
-            Icon(_fallbackIcon, color: AppColors.textDark, size: 28),
-      ),
+      child: tipo.iconAsset,
     );
   }
 }
