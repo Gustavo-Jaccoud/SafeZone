@@ -1,4 +1,5 @@
 import 'package:SafeZone/app/app_shell.dart';
+import 'package:SafeZone/pages/login_start_page.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'pages/home_page.dart';
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AppShell(),
+    home: const LoginStartPage(),
     );
   }
 }
+
