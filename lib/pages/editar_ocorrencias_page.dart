@@ -1,3 +1,4 @@
+import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
@@ -6,7 +7,6 @@ import 'package:SafeZone/widgets/custom_app_bar.dart';
 import 'package:SafeZone/mocks/ocorrencias_mock.dart';
 
 class EditarOcorrenciaPage extends StatefulWidget {
-  
   final Ocorrencia ocorrencia;
 
   const EditarOcorrenciaPage({super.key, required this.ocorrencia});
@@ -19,7 +19,6 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
   final _formKey = GlobalKey<FormState>();
   final _locationService = LocationService();
 
- 
   TipoOcorrencia? _tipoSelecionado;
   late final TextEditingController _dataController;
   late final TextEditingController _bairroController;
@@ -31,19 +30,19 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
   @override
   void initState() {
     super.initState();
-    
-    
+
     _tipoSelecionado = widget.ocorrencia.tipo;
-    
+
     // Formata a data existente para dd/mm/aaaa
     final data = widget.ocorrencia.data;
-    final dataFormatada = '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
-    
+    final dataFormatada =
+        '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
+
     _dataController = TextEditingController(text: dataFormatada);
     _bairroController = TextEditingController(text: widget.ocorrencia.bairro);
-    _descricaoController = TextEditingController(text: widget.ocorrencia.descricao ?? '');
-
-    
+    _descricaoController = TextEditingController(
+      text: widget.ocorrencia.descricao ?? '',
+    );
   }
 
   @override
@@ -54,7 +53,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     super.dispose();
   }
 
-  /// Método para capturar localização via GPS 
+  /// Método para capturar localização via GPS
   Future<void> _capturarLocalizacaoManual() async {
     setState(() => _loadingLocation = true);
 
@@ -73,11 +72,10 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
             : (placemark.locality ?? '');
 
         setState(() {
-          _bairroController.text = bairro; 
+          _bairroController.text = bairro;
         });
       }
     } catch (_) {
-      
     } finally {
       if (mounted) setState(() => _loadingLocation = false);
     }
@@ -113,9 +111,8 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
       int.parse(partesData[0]),
     );
 
-    
     final ocorrenciaAtualizada = Ocorrencia(
-      id: widget.ocorrencia.id, 
+      id: widget.ocorrencia.id,
       tipo: _tipoSelecionado!,
       bairro: _bairroController.text.trim(),
       data: dataConvertida,
@@ -123,7 +120,9 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     );
 
     // Substitui diretamente na nossa lista Mock global
-    final index = ocorrenciasMock.indexWhere((o) => o.id == widget.ocorrencia.id);
+    final index = ocorrenciasMock.indexWhere(
+      (o) => o.id == widget.ocorrencia.id,
+    );
     if (index != -1) {
       ocorrenciasMock[index] = ocorrenciaAtualizada;
     }
@@ -136,7 +135,9 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar(showBackButton: true), // AppBar com botão de voltar ativo
+      appBar: const CustomAppBar(
+        showBackButton: true,
+      ), // AppBar com botão de voltar ativo
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Form(
@@ -144,36 +145,39 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ícone indicativo de edição no topo
-              const Center(
-                child: CircleAvatar(
-                  radius: 36,
-                  backgroundColor: AppColors.white,
-                  child: Icon(Icons.edit_note, size: 44, color: AppColors.textDark),
+              Center(
+                child: Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.primaryDark, width: 2),
+                  ),
+                  child: AppIcons.editarOcorrencia,
                 ),
               ),
               const SizedBox(height: 28),
-              
+
               _buildLabel('Tipo de Ocorrência'),
               const SizedBox(height: 8),
               _buildDropdown(),
               const SizedBox(height: 20),
-              
+
               _buildLabel('Data'),
               const SizedBox(height: 8),
               _buildDateField(),
               const SizedBox(height: 20),
-              
+
               _buildLabel('Localização (Bairro)'),
               const SizedBox(height: 8),
               _buildLocationField(),
               const SizedBox(height: 20),
-              
+
               _buildLabel('Descrição'),
               const SizedBox(height: 8),
               _buildDescriptionField(),
               const SizedBox(height: 36),
-              
+
               _buildSubmitButton(),
             ],
           ),
@@ -182,11 +186,14 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     );
   }
 
-  
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textDark),
+      style: const TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textDark,
+      ),
     );
   }
 
@@ -214,13 +221,21 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
   Widget _buildLocationField() {
     return TextFormField(
       controller: _bairroController,
-      validator: (v) => (v == null || v.isEmpty) ? 'Informe a localização' : null,
+      validator: (v) =>
+          (v == null || v.isEmpty) ? 'Informe a localização' : null,
       decoration: _inputDecoration(hint: 'Ex: Farolândia').copyWith(
         // Adiciona o botão de GPS apenas como um facilitador manual secundário
         suffixIcon: _loadingLocation
             ? const Padding(
                 padding: EdgeInsets.all(12),
-                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
+                ),
               )
             : IconButton(
                 icon: const Icon(Icons.my_location, color: AppColors.primary),
@@ -249,10 +264,15 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
           elevation: 0,
         ),
-        child: const Text('Editar Ocorrência', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        child: const Text(
+          'Editar Ocorrência',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
@@ -264,9 +284,18 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
       filled: true,
       fillColor: _fieldFill,
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      border: const OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: AppColors.primary, width: 1.5)),
-      enabledBorder: const OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: AppColors.primary, width: 1.5)),
-      focusedBorder: const OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: AppColors.primaryHover, width: 2)),
+      border: const OutlineInputBorder(
+        borderRadius: radius,
+        borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: radius,
+        borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: radius,
+        borderSide: BorderSide(color: AppColors.primaryHover, width: 2),
+      ),
     );
   }
 }

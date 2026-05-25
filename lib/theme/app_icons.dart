@@ -45,5 +45,13 @@ class AppIcons {
     'assets/images/vandalismo.png',
     height: 25,
   );
+  static final novaOcorrencia = Image.asset(
+    'assets/images/novaocorrencia.png',
+    height: 35,
+  );
+  static final editarOcorrencia = Image.asset(
+    'assets/images/editarocorrencia.png',
+    height: 35,
+  );
 
 }

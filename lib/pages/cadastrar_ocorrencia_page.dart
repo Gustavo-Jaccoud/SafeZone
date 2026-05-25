@@ -1,3 +1,4 @@
+import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
@@ -212,13 +213,9 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
         height: 72,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.textDark, width: 2),
+          border: Border.all(color: AppColors.primaryDark, width: 2),
         ),
-        child: const Icon(
-          Icons.contact_page_outlined,
-          size: 36,
-          color: AppColors.textDark,
-        ),
+        child: AppIcons.novaOcorrencia
       ),
     );
   }
