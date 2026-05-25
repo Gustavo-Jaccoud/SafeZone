@@ -1,4 +1,5 @@
 import 'package:SafeZone/pages/home_page.dart';
+import 'package:SafeZone/pages/minhas_ocorrencias_page.dart';
 import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/widgets/custom_app_bar.dart';
 import 'package:SafeZone/widgets/custom_bottom_nav.dart';
@@ -43,7 +44,10 @@ class _AppShellState extends State<AppShell> {
         child: HomePage(onLocationChanged: _onLocationChanged),
       ),
       const Center(child: Text('Ocorrências')),
-      const Center(child: Text('Minhas Ocorrências')),
+      const Padding(
+        padding: EdgeInsets.only(top: 80),
+        child: MinhasOcorrenciasPage(),
+      ),
     ];
 
     return Scaffold(
