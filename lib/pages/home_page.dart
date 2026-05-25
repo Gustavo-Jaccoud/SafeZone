@@ -8,8 +8,13 @@ import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
   final Function(double, double) onLocationChanged;
+  final VoidCallback onCadastrarPressed;
 
-  const HomePage({super.key, required this.onLocationChanged});
+  const HomePage({
+    super.key,
+    required this.onLocationChanged,
+    required this.onCadastrarPressed,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -28,11 +33,9 @@ class _HomePageState extends State<HomePage> {
           onLocationChanged: (newLat, newLng) {
             lat = newLat;
             lng = newLng;
-
             widget.onLocationChanged(newLat, newLng);
           },
         ),
-
         Positioned(
           bottom: 110,
           right: 20,
@@ -40,7 +43,6 @@ class _HomePageState extends State<HomePage> {
             heroTag: "center_map",
             onPressed: () async {
               if (lat == null || lng == null) return;
-
               await MapControllerService.centerOn(lat!, lng!);
             },
             shape: const CircleBorder(),
@@ -48,7 +50,6 @@ class _HomePageState extends State<HomePage> {
             child: const Icon(Icons.my_location, color: AppColors.primary),
           ),
         ),
-
         Positioned(
           bottom: 190,
           left: 20,
@@ -66,7 +67,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-
         Positioned(
           bottom: 110,
           left: 20,
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
             height: 58,
             child: FloatingActionButton(
               heroTag: "left_action_2",
-              onPressed: () {},
+              onPressed: widget.onCadastrarPressed,
               shape: const CircleBorder(),
               backgroundColor: AppColors.white,
               child: AppIcons.nova_ocorrencia,

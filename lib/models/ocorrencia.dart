@@ -84,36 +84,40 @@ class Ocorrencia {
   final TipoOcorrencia tipo;
   final String bairro;
   final DateTime data;
+  final String descricao;
 
-  // Construtor com campos obrigatórios
+  
   Ocorrencia({
     required this.id,
     required this.tipo,
     required this.bairro,
     required this.data,
+    required this.descricao,
   });
 
-  // Cria uma Ocorrencia a partir de um Map "JSON do backend"
+  
   factory Ocorrencia.fromJson(Map<String, dynamic> json) {
     return Ocorrencia(
       id: json['id'] as String,
-      // Busca o enum pelo nome; se não achar, usa vandalismo
+      
       tipo: TipoOcorrencia.values.firstWhere(
         (t) => t.name == json['tipo'],
         orElse: () => TipoOcorrencia.vandalismo,
       ),
       bairro: json['bairro'] as String,
       data: DateTime.parse(json['data'] as String),
+      descricao: json['descricao'] as String,
     );
   }
 
-  // Transforma a Ocorrencia em Map (pra enviar/salvar)
+  
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'tipo': tipo.name,
       'bairro': bairro,
       'data': data.toIso8601String(),
+      'descricao': descricao,
     };
   }
 }
