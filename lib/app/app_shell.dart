@@ -1,3 +1,4 @@
+import 'package:SafeZone/pages/cadastrar_ocorrencia_page.dart';
 import 'package:SafeZone/pages/home_page.dart';
 import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/widgets/custom_app_bar.dart';
@@ -19,12 +20,11 @@ class _AppShellState extends State<AppShell> {
   Placemark? place;
 
   final locationService = LocationService();
+
   void _onLocationChanged(double newLat, double newLng) async {
     lat = newLat;
     lng = newLng;
-
     final newPlace = await locationService.getPlaceFromCoords(newLat, newLng);
-
     if (newPlace != null && newPlace != place) {
       setState(() {
         place = newPlace;
@@ -32,12 +32,24 @@ class _AppShellState extends State<AppShell> {
     }
   }
 
+  void _onCadastrarPressed() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CadastrarOcorrenciaPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> paginas = [
       Padding(
-        padding: EdgeInsets.only(top: 80),
-        child: HomePage(onLocationChanged: _onLocationChanged),
+        padding: const EdgeInsets.only(top: 80),
+        child: HomePage(
+          onLocationChanged: _onLocationChanged,
+          onCadastrarPressed: _onCadastrarPressed,
+        ),
       ),
       const Center(child: Text('Ocorrências')),
       const Center(child: Text('Minhas Ocorrências')),
