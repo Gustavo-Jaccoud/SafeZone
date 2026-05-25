@@ -28,16 +28,15 @@ class LoginStartPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
                   ),
                   children: [
                     TextSpan(
                       text: 'Safe',
-                      style: TextStyle(color: Color(0xFF78BE4D)),
+                      style: TextStyle(color: AppColors.primary),
                     ),
                     TextSpan(
                       text: 'Zone',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: AppColors.primaryDark),
                     ),
                   ],
                 ),

@@ -18,7 +18,7 @@ class PrimaryButton extends StatelessWidget {
       height: 50,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryHover,
+          backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
@@ -28,7 +28,7 @@ class PrimaryButton extends StatelessWidget {
         child: Text(
           text,
           style: const TextStyle(
-            color: AppColors.textDark,
+            color: AppColors.primaryDark,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
