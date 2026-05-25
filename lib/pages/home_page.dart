@@ -2,6 +2,7 @@ import 'package:SafeZone/controllers/map_controller.dart';
 import 'package:SafeZone/services/call_service.dart';
 import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/theme/app_colors.dart';
+import 'package:SafeZone/theme/app_icons.dart';
 import 'package:SafeZone/widgets/custom_map.dart';
 import 'package:flutter/material.dart';
 
@@ -77,7 +78,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {},
               shape: const CircleBorder(),
               backgroundColor: AppColors.white,
-              child: const Icon(Icons.add_location, color: AppColors.primary),
+              child: AppIcons.nova_ocorrencia,
             ),
           ),
         ),
