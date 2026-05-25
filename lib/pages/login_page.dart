@@ -36,8 +36,8 @@ class LoginPage extends StatelessWidget {
                         fontFamily: 'Inter',
                       ),
                       children: [
-                        TextSpan(text: 'Safe', style: TextStyle(color: Color(0xFF78BE4D))),
-                        TextSpan(text: 'Zone', style: TextStyle(color: Colors.black)),
+                        TextSpan(text: 'Safe', style: TextStyle(color: AppColors.primary)),
+                        TextSpan(text: 'Zone', style: TextStyle(color: AppColors.primaryDark)),
                       ],
                     ),
                   ),

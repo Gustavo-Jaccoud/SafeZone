@@ -67,7 +67,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                               TextSpan(
                                 text: 'Zone',
                                 style: TextStyle(
-                                  color: AppColors.textDark,
+                                  color: AppColors.primaryDark,
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
