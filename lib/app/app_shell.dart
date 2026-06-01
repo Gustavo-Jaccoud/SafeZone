@@ -98,7 +98,7 @@ class _AppShellState extends State<AppShell> {
         // LOGICA VISUAL: Se o painel estiver aberto, força a BottomNav a acender o ícone 1 (Ocorrências).
         // Se o painel fechar, ela volta automaticamente para o valor de paginaAtual (0 - Home).
         paginaAtual: exibirPainelOcorrencias ? 1 : paginaAtual,
-        bairroAtual: (place?.subLocality?.isNotEmpty == true)
+        enderecoAtual: (place?.subLocality?.isNotEmpty == true)
             ? place!.subLocality!
             : "Localizando...",
         onTap: (index) {
