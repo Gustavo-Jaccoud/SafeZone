@@ -15,25 +15,25 @@ class OcorrenciaService {
     }
   }
 
-  Stream<List<Ocorrencia>> buscarOcorrenciasProximas({
+ Future<List<Ocorrencia>> buscarOcorrenciasProximas({
     required double userLat,
     required double userLng,
     required double raioEmKm,
-  }) {
+  }) async {
     final limites = _calcularLimite(userLat, userLng, raioEmKm);
 
-    return _firestore
+    // 🔄 ALTERADO: Mudamos para .get() para retornar um Future contendo o snapshot estático
+    final snapshot = await _firestore
         .collection('ocorrencias')
         .where('latitude', isGreaterThanOrEqualTo: limites['minLat'])
         .where('latitude', isLessThanOrEqualTo: limites['maxLat'])
         .where('longitude', isGreaterThanOrEqualTo: limites['minLng'])
         .where('longitude', isLessThanOrEqualTo: limites['maxLng'])
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => Ocorrencia.fromFirestore(doc))
-          .toList();
-    });
+        .get();
+
+    return snapshot.docs
+        .map((doc) => Ocorrencia.fromFirestore(doc))
+        .toList();
   }
 
   Map<String, double> _calcularLimite(

@@ -2,7 +2,7 @@ import 'package:SafeZone/controllers/map_controller.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/call_service.dart';
 import 'package:SafeZone/services/location_service.dart';
-import 'package:SafeZone/services/ocorrencia_service.dart';
+import 'package:SafeZone/firebase/ocorrencia_service.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/theme/app_icons.dart';
 import 'package:SafeZone/widgets/custom_map.dart';
