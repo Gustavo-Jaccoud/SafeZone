@@ -1,9 +1,11 @@
 import 'package:SafeZone/theme/app_icons.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/widgets/custom_app_bar.dart';
+import 'package:geocoding/geocoding.dart';
 
 class CadastrarOcorrenciaPage extends StatefulWidget {
   const CadastrarOcorrenciaPage({super.key});
@@ -19,9 +21,11 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
 
   TipoOcorrencia? _tipoSelecionado;
   final _dataController = TextEditingController();
-  final _bairroController = TextEditingController();
+  final _enderecoController = TextEditingController();
   final _descricaoController = TextEditingController();
 
+  double? _latitude;
+  double? _longitude;
   bool _loadingLocation = false;
 
   static const Color _fieldFill = Color(0xFFEFF8E8);
@@ -35,12 +39,12 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
   @override
   void dispose() {
     _dataController.dispose();
-    _bairroController.dispose();
+    _enderecoController.dispose();
     _descricaoController.dispose();
     super.dispose();
   }
 
-  /// Tenta obter a localização atual do usuário via GPS para preenchimento automático do bairro.
+  /// Tenta obter a localização atual do usuário via GPS para preenchimento automático do endereco.
   Future<void> _loadLocation() async {
     setState(() => _loadingLocation = true);
 
@@ -48,20 +52,25 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       final position = await _locationService.getCurrentLocation();
       if (position == null) return;
 
-      await _locationService.saveCache(position.latitude, position.longitude);
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+      await _locationService.saveCache(_latitude!, _longitude!);
 
       final placemark = await _locationService.getPlaceFromCoords(
-        position.latitude,
-        position.longitude,
+        _latitude!,
+        _longitude!,
       );
 
       if (placemark != null && mounted) {
-        final bairro = (placemark.subLocality?.isNotEmpty ?? false)
-            ? placemark.subLocality!
-            : (placemark.locality ?? '');
+        final endereco = [
+          placemark.street,
+          placemark.subThoroughfare, 
+          placemark.subLocality, 
+          placemark.locality, 
+        ].where((e) => e != null && e.trim().isNotEmpty).join(', ');
 
         setState(() {
-          _bairroController.text = bairro;
+          _enderecoController.text = endereco;
         });
       }
     } catch (_) {
@@ -132,18 +141,37 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
   }
 
   /// Executa a validação do form.
-  void _cadastrar() {
+  Future<void> _cadastrar() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_latitude == null || _longitude == null) {
+      final position = await _locationService.getCurrentLocation();
+      if (position == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Não foi possível obter as coordenadas. Use o botão de localização.',
+            ),
+          ),
+        );
+        return;
+      }
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+    }
 
     final novaOcorrencia = Ocorrencia(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       tipo: _tipoSelecionado!,
-      bairro: _bairroController.text.trim(),
+      endereco: _enderecoController.text.trim(),
       data: _parseData(_dataController.text),
       descricao: _descricaoController.text.trim(),
+      latitude:  _latitude!, 
+      longitude:  _longitude!,
     );
 
-    debugPrint(novaOcorrencia.toJson().toString());
+    debugPrint(novaOcorrencia.toFirestore().toString());
   }
 
   /// Converte a string formatada em dd/MM/yyyy para um objeto [DateTime].
@@ -215,7 +243,7 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.primaryDark, width: 2),
         ),
-        child: AppIcons.novaOcorrencia
+        child: AppIcons.novaOcorrencia,
       ),
     );
   }
@@ -261,7 +289,7 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
 
   Widget _buildLocationField() {
     return TextFormField(
-      controller: _bairroController,
+      controller: _enderecoController,
       validator: (v) =>
           (v == null || v.isEmpty) ? 'Informe a localização' : null,
       decoration: _inputDecoration(hint: 'Ex: Farolândia, Aracaju-SE').copyWith(
@@ -300,7 +328,6 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
     );
   }
 
- 
   InputDecoration _inputDecoration({String? hint}) {
     const radius = BorderRadius.all(Radius.circular(28));
     return InputDecoration(
@@ -308,8 +335,7 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
       filled: true,
       fillColor: _fieldFill,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: radius,
         borderSide: const BorderSide(color: AppColors.primary, width: 1.5),

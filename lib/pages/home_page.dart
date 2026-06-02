@@ -1,6 +1,8 @@
 import 'package:SafeZone/controllers/map_controller.dart';
+import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/call_service.dart';
 import 'package:SafeZone/services/location_service.dart';
+import 'package:SafeZone/firebase/ocorrencia_service.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/theme/app_icons.dart';
 import 'package:SafeZone/widgets/custom_map.dart';
@@ -75,7 +77,20 @@ class _HomePageState extends State<HomePage> {
             height: 58,
             child: FloatingActionButton(
               heroTag: "left_action_2",
-              onPressed: widget.onCadastrarPressed,
+              onPressed: () async {
+                final ocorrenciaService = OcorrenciaService();
+
+                await ocorrenciaService.registrarOcorrencia(
+                  Ocorrencia(
+                    tipo: TipoOcorrencia.roubo,
+                    descricao: 'Roubo de celular na rua',
+                    data: DateTime.now(),
+                    endereco: "dfçdfkçlskdfçlsk",
+                    latitude: lat!,
+                    longitude: lng!,
+                  ),
+                );
+              },
               shape: const CircleBorder(),
               backgroundColor: AppColors.white,
               child: AppIcons.nova_ocorrencia,

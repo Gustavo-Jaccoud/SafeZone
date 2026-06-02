@@ -5,13 +5,13 @@ import '../theme/app_colors.dart';
 class CustomBottomNav extends StatelessWidget {
   final int paginaAtual;
   final Function(int) onTap;
-  final String bairroAtual;
+  final String enderecoAtual;
 
   const CustomBottomNav({
     super.key,
     required this.paginaAtual,
     required this.onTap,
-    required this.bairroAtual,
+    required this.enderecoAtual,
   });
 
   @override
@@ -41,7 +41,7 @@ class CustomBottomNav extends StatelessWidget {
               SizedBox(width: 8),
 
               Text(
-                bairroAtual,
+                enderecoAtual,
 
                 style: TextStyle(
                   color: AppColors.white,

@@ -1,5 +1,6 @@
 import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/location_service.dart';
@@ -21,9 +22,11 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
 
   TipoOcorrencia? _tipoSelecionado;
   late final TextEditingController _dataController;
-  late final TextEditingController _bairroController;
+  late final TextEditingController _enderecoController;
   late final TextEditingController _descricaoController;
 
+  double? _latitude;
+  double? _longitude;
   bool _loadingLocation = false;
   static const Color _fieldFill = Color(0xFFEFF8E8);
 
@@ -32,6 +35,8 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     super.initState();
 
     _tipoSelecionado = widget.ocorrencia.tipo;
+    _latitude = widget.ocorrencia.latitude;
+    _longitude = widget.ocorrencia.longitude;
 
     // Formata a data existente para dd/mm/aaaa
     final data = widget.ocorrencia.data;
@@ -39,7 +44,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
         '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
 
     _dataController = TextEditingController(text: dataFormatada);
-    _bairroController = TextEditingController(text: widget.ocorrencia.bairro);
+    _enderecoController = TextEditingController(text: widget.ocorrencia.endereco);
     _descricaoController = TextEditingController(
       text: widget.ocorrencia.descricao ?? '',
     );
@@ -48,7 +53,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
   @override
   void dispose() {
     _dataController.dispose();
-    _bairroController.dispose();
+    _enderecoController.dispose();
     _descricaoController.dispose();
     super.dispose();
   }
@@ -61,18 +66,22 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
       final position = await _locationService.getCurrentLocation();
       if (position == null) return;
 
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+      await _locationService.saveCache(_latitude!, _longitude!);
+
       final placemark = await _locationService.getPlaceFromCoords(
-        position.latitude,
-        position.longitude,
+        _latitude!,
+        _longitude!,
       );
 
       if (placemark != null && mounted) {
-        final bairro = (placemark.subLocality?.isNotEmpty ?? false)
+        final endereco = (placemark.subLocality?.isNotEmpty ?? false)
             ? placemark.subLocality!
             : (placemark.locality ?? '');
 
         setState(() {
-          _bairroController.text = bairro;
+          _enderecoController.text = endereco;
         });
       }
     } catch (_) {
@@ -114,9 +123,11 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     final ocorrenciaAtualizada = Ocorrencia(
       id: widget.ocorrencia.id,
       tipo: _tipoSelecionado!,
-      bairro: _bairroController.text.trim(),
+      endereco: _enderecoController.text.trim(),
       data: dataConvertida,
       descricao: _descricaoController.text.trim(),
+      latitude : _latitude ?? widget.ocorrencia.latitude,
+      longitude: _longitude ?? widget.ocorrencia.longitude,
     );
 
     // Substitui diretamente na nossa lista Mock global
@@ -168,7 +179,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
               _buildDateField(),
               const SizedBox(height: 20),
 
-              _buildLabel('Localização (Bairro)'),
+              _buildLabel('Localização (endereco)'),
               const SizedBox(height: 8),
               _buildLocationField(),
               const SizedBox(height: 20),
@@ -220,7 +231,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
 
   Widget _buildLocationField() {
     return TextFormField(
-      controller: _bairroController,
+      controller: _enderecoController,
       validator: (v) =>
           (v == null || v.isEmpty) ? 'Informe a localização' : null,
       decoration: _inputDecoration(hint: 'Ex: Farolândia').copyWith(

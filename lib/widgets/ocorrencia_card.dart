@@ -65,9 +65,9 @@ class OcorrenciaCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                //bairro
+                //endereco
                 Text(
-                  ocorrencia.bairro,
+                  ocorrencia.endereco,
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textDark,
