@@ -4,17 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'pages/home_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_core/firebase_core.dart'; // 1. ADICIONE ESTE IMPORT
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
-  // Garante que o Flutter se conecte com a parte nativa do Android
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. INICIALIZE O FIREBASE AQUI
-  // Como é só Android, ele vai buscar o arquivo 'google-services.json' automaticamente
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  // Carrega as variáveis de ambiente do Mapbox
   await dotenv.load(fileName: ".env");
 
   final token = dotenv.env['MAPBOX_TOKEN'];
