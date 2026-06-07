@@ -4,8 +4,7 @@ import '../theme/app_colors.dart';
 
 // Card que representa uma ocorrência na lista
 class OcorrenciaCard extends StatelessWidget {
-  final Ocorrencia ocorrencia; // dados da ocorrencia
-  // o card avisa quando o usuário clica nos botões
+  final Ocorrencia ocorrencia;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -18,44 +17,50 @@ class OcorrenciaCard extends StatelessWidget {
 
   // Formata a data no padrão dd/mm/aaaa
   String _formatData(DateTime d) {
-    // Função auxiliar pra colocar zero à esquerda (5 -> "05")
     String dois(int n) => n.toString().padLeft(2, '0');
     return '${dois(d.day)}/${dois(d.month)}/${d.year}';
+  }
+
+  // Extrai só a cidade/bairro do endereço completo
+  // Ex: "Rua X, 123, Farolândia, Aracaju" -> "Farolândia, Aracaju"
+  String _resumoEndereco(String endereco) {
+    final partes = endereco.split(',').map((e) => e.trim()).toList();
+    if (partes.length <= 2) return endereco; // já é curto
+    // Pega os dois últimos pedaços (geralmente bairro e cidade)
+    return '${partes[partes.length - 2]}, ${partes.last}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10), // espaço entre cards
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12), // cantos arredondados
-        border: Border.all(color: ocorrencia.tipo.color, width: 1.5), // borda colorida
+        borderRadius: BorderRadius.circular(12),
+        // Usa a cor que já vem do model (tipo.color)
+        border: Border.all(color: ocorrencia.tipo.color, width: 1.5),
         boxShadow: [
-          // Sombra sutil pra dar profundidade
           BoxShadow(
-            color: Colors.black.withAlpha(100),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-
-      child: Row( //horizontal
+      child: Row(
         children: [
-          // Ícone do tipo com fallback
-          _IconeOcorrencia(tipo: ocorrencia.tipo),
+          // Ícone do tipo (vem do model, é um Widget)
+          SizedBox(width: 36, height: 36, child: ocorrencia.tipo.iconAsset),
 
           const SizedBox(width: 12),
 
-          //espaço entre icone e botão
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, //alinha esquerda
-              mainAxisSize: MainAxisSize.min, //altura
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                //nome do tipo em negrito
+                // Nome do tipo
                 Text(
                   ocorrencia.tipo.label,
                   style: const TextStyle(
@@ -65,21 +70,17 @@ class OcorrenciaCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                //endereco
+                // Cidade/bairro extraído do endereço
                 Text(
-                  ocorrencia.endereco,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textDark,
-                  ),
+                  _resumoEndereco(ocorrencia.endereco),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, color: AppColors.textDark),
                 ),
-                //data formatada
+                // Data formatada
                 Text(
                   _formatData(ocorrencia.data),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textDark,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textDark),
                 ),
               ],
             ),
@@ -87,10 +88,10 @@ class OcorrenciaCard extends StatelessWidget {
 
           // Botão editar
           IconButton(
-            onPressed: onEdit, // dispara o callback
+            onPressed: onEdit,
             icon: const Icon(Icons.edit, color: AppColors.primary),
             tooltip: 'Editar',
-            visualDensity: VisualDensity.compact, // reduz tamanho de toque
+            visualDensity: VisualDensity.compact,
           ),
           // Botão excluir
           IconButton(
@@ -101,22 +102,6 @@ class OcorrenciaCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// mostra o ícone do tipo com fallback
-class _IconeOcorrencia extends StatelessWidget {
-  final TipoOcorrencia tipo;
-  const _IconeOcorrencia({required this.tipo});
-
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: tipo.iconAsset,
     );
   }
 }
