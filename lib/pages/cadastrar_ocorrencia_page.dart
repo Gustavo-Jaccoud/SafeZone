@@ -1,11 +1,11 @@
 import 'package:SafeZone/theme/app_icons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/firebase/ocorrencia_service.dart';
+import 'package:SafeZone/services/auth_service.dart'; /// Só funciona com o commit de Danilo
 import 'package:SafeZone/widgets/custom_app_bar.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -21,9 +21,7 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
   final _formKey = GlobalKey<FormState>();
   final _locationService = LocationService();
   final _ocorrenciaService = OcorrenciaService();
-
-  // Domínio institucional permitido para cadastrar ocorrências
-  static const _dominioPermitido = '@souunit.com.br';
+  final _authService = AuthService();
 
   TipoOcorrencia? _tipoSelecionado;
   final _dataController = TextEditingController();
@@ -146,7 +144,7 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
     return null;
   }
 
-  
+  /// Executa a validação do form e persiste a ocorrência no Firestore.
   Future<void> _cadastrar() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -167,27 +165,14 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       _longitude = position.longitude;
     }
 
-    // Captura dinamicamente o e-mail do usuário instanciado pelo Firebase Auth
-    final email = FirebaseAuth.instance.currentUser?.email;
+    // Captura dinamicamente o e-mail do usuário logado 
+    final email = _authService.currentUser?.email;
     if (email == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
             'Você precisa estar logado para cadastrar uma ocorrência.',
-          ),
-        ),
-      );
-      return;
-    }
-
-    // Rede de segurança: barra o cadastro se a conta não for do domínio institucional
-    if (!email.toLowerCase().endsWith(_dominioPermitido)) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Apenas contas institucionais ($_dominioPermitido) podem cadastrar ocorrências.',
           ),
         ),
       );
@@ -202,10 +187,10 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       descricao: _descricaoController.text.trim(),
       latitude:  _latitude!, 
       longitude:  _longitude!,
-      criadoPor: email, 
+      criadoPor: email, // Amarração dinâmica: quem criou o registro
     );
 
-    // Chamada ao Firestore 
+    // Chamada real ao Firestore (substitui o antigo debugPrint)
     try {
       await _ocorrenciaService.registrarOcorrencia(novaOcorrencia);
       if (!mounted) return;
