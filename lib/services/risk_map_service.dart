@@ -35,7 +35,7 @@ class RiskMapService {
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0.0, "#78BE4D", // Seguro (Mapa começa verde)
+          0.0, "#78BE4D", // Seguro 
           0.3, "#F6AE2D", // Atenção
           0.7, "#CC3030", // Risco
         ],

@@ -39,7 +39,7 @@ class OcorrenciaService {
   }) async {
     final limites = _calcularLimite(userLat, userLng, raioEmKm);
  
-    // 🔄 ALTERADO: Mudamos para .get() para retornar um Future contendo o snapshot estático
+  
     final snapshot = await _firestore
         .collection('ocorrencias')
         .where('latitude', isGreaterThanOrEqualTo: limites['minLat'])
