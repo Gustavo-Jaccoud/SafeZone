@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // 1. IMPORTAÇÃO DO FIREBASE
@@ -78,6 +76,7 @@ class Ocorrencia {
   final String descricao;
   final double latitude;
   final double longitude;
+  final String criadoPor; // 3. E-mail do usuário logado (amarração dinâmica via Firebase Auth)
 
   Ocorrencia({
     this.id, // Sem 'required' no ID
@@ -86,7 +85,8 @@ class Ocorrencia {
     required this.data,
     required this.descricao,
     required this.latitude,
-    required this.longitude
+    required this.longitude,
+    this.criadoPor = '', // Default '' para não quebrar mocks e documentos antigos
   });
 
   // 4. Mudamos de 'fromJson' para 'fromFirestore' para mapear o Documento do Firebase de forma correta
@@ -105,7 +105,8 @@ class Ocorrencia {
       descricao: json['descricao'] as String,
       // Buscando a propriedade GeoPoint:
       latitude: json['latitude'] as double,
-      longitude: json['longitude'] as double
+      longitude: json['longitude'] as double,
+      criadoPor: (json['criado_por'] as String?) ?? '',
     );
   }
 
@@ -119,7 +120,8 @@ class Ocorrencia {
       'data': Timestamp.fromDate(data),
       'descricao': descricao,
       'latitude': latitude, 
-      'longitude': longitude
+      'longitude': longitude,
+      'criado_por': criadoPor,
     };
   }
 

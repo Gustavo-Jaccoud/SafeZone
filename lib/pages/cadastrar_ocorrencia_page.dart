@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/location_service.dart';
+import 'package:SafeZone/firebase/ocorrencia_service.dart';
+import 'package:SafeZone/services/auth_service.dart'; /// Só funciona com o commit de Danilo
 import 'package:SafeZone/widgets/custom_app_bar.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -18,6 +20,8 @@ class CadastrarOcorrenciaPage extends StatefulWidget {
 class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
   final _formKey = GlobalKey<FormState>();
   final _locationService = LocationService();
+  final _ocorrenciaService = OcorrenciaService();
+  final _authService = AuthService();
 
   TipoOcorrencia? _tipoSelecionado;
   final _dataController = TextEditingController();
@@ -140,7 +144,7 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
     return null;
   }
 
-  /// Executa a validação do form.
+  /// Executa a validação do form e persiste a ocorrência no Firestore.
   Future<void> _cadastrar() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -161,17 +165,45 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       _longitude = position.longitude;
     }
 
+    // Captura dinamicamente o e-mail do usuário logado 
+    final email = _authService.currentUser?.email;
+    if (email == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Você precisa estar logado para cadastrar uma ocorrência.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Sem id: o Firestore gera o identificador do documento automaticamente no .add()
     final novaOcorrencia = Ocorrencia(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
       tipo: _tipoSelecionado!,
       endereco: _enderecoController.text.trim(),
       data: _parseData(_dataController.text),
       descricao: _descricaoController.text.trim(),
       latitude:  _latitude!, 
       longitude:  _longitude!,
+      criadoPor: email, // Amarração dinâmica: quem criou o registro
     );
 
-    debugPrint(novaOcorrencia.toFirestore().toString());
+    // Chamada real ao Firestore (substitui o antigo debugPrint)
+    try {
+      await _ocorrenciaService.registrarOcorrencia(novaOcorrencia);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ocorrência cadastrada com sucesso!')),
+      );
+      Navigator.pop(context, true); // volta sinalizando que houve cadastro
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao cadastrar: $e')),
+      );
+    }
   }
 
   /// Converte a string formatada em dd/MM/yyyy para um objeto [DateTime].

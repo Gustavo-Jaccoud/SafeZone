@@ -1,11 +1,11 @@
 import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/location_service.dart';
+import 'package:SafeZone/firebase/ocorrencia_service.dart';
+import 'package:SafeZone/services/auth_service.dart'; 
 import 'package:SafeZone/widgets/custom_app_bar.dart';
-import 'package:SafeZone/mocks/ocorrencias_mock.dart';
 
 class EditarOcorrenciaPage extends StatefulWidget {
   final Ocorrencia ocorrencia;
@@ -19,6 +19,8 @@ class EditarOcorrenciaPage extends StatefulWidget {
 class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
   final _formKey = GlobalKey<FormState>();
   final _locationService = LocationService();
+  final _ocorrenciaService = OcorrenciaService();
+  final _authService = AuthService();
 
   TipoOcorrencia? _tipoSelecionado;
   late final TextEditingController _dataController;
@@ -46,7 +48,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     _dataController = TextEditingController(text: dataFormatada);
     _enderecoController = TextEditingController(text: widget.ocorrencia.endereco);
     _descricaoController = TextEditingController(
-      text: widget.ocorrencia.descricao ?? '',
+      text: widget.ocorrencia.descricao,
     );
   }
 
@@ -109,8 +111,23 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     }
   }
 
-  void _salvarAlteracoes() {
+  /// Valida o form e persiste a atualização no Firestore.
+  Future<void> _salvarAlteracoes() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Guarda de autenticação (defense-in-depth): só permite editar logado
+    final email = _authService.currentUser?.email;
+    if (email == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Você precisa estar logado para editar uma ocorrência.',
+          ),
+        ),
+      );
+      return;
+    }
 
     // Converte o texto dd/mm/aaaa de volta para DateTime
     final partesData = _dataController.text.split('/');
@@ -120,6 +137,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
       int.parse(partesData[0]),
     );
 
+    // Mantém o ID e o criador original: a edição nunca sobrescreve quem criou
     final ocorrenciaAtualizada = Ocorrencia(
       id: widget.ocorrencia.id,
       tipo: _tipoSelecionado!,
@@ -128,18 +146,24 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
       descricao: _descricaoController.text.trim(),
       latitude : _latitude ?? widget.ocorrencia.latitude,
       longitude: _longitude ?? widget.ocorrencia.longitude,
+      criadoPor: widget.ocorrencia.criadoPor,
     );
 
-    // Substitui diretamente na nossa lista Mock global
-    final index = ocorrenciasMock.indexWhere(
-      (o) => o.id == widget.ocorrencia.id,
-    );
-    if (index != -1) {
-      ocorrenciasMock[index] = ocorrenciaAtualizada;
+    // Persiste a atualização diretamente no Firestore
+    try {
+      await _ocorrenciaService.atualizarOcorrencia(ocorrenciaAtualizada);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ocorrência atualizada com sucesso!')),
+      );
+      
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao atualizar: $e')),
+      );
     }
-
-    // Fecha a tela retornando 'true' para sinalizar que houve modificação
-    Navigator.pop(context, true);
   }
 
   @override
