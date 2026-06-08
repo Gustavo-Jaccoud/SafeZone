@@ -6,6 +6,7 @@ import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/firebase/ocorrencia_service.dart';
 import 'package:SafeZone/services/auth_service.dart'; 
 import 'package:SafeZone/widgets/custom_app_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EditarOcorrenciaPage extends StatefulWidget {
   final Ocorrencia ocorrencia;
@@ -43,7 +44,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     // Formata a data existente para dd/mm/aaaa
     final data = widget.ocorrencia.data;
     final dataFormatada =
-        '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
+        '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year} ${data.hour}:${data.minute}';
 
     _dataController = TextEditingController(text: dataFormatada);
     _enderecoController = TextEditingController(text: widget.ocorrencia.endereco);
@@ -93,24 +94,96 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
   }
 
   /// Exibe o calendário iniciando na data original da ocorrência
-  Future<void> _pickDate() async {
-    final hoje = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: widget.ocorrencia.data,
-      firstDate: DateTime(2000),
-      lastDate: hoje,
-    );
-    if (picked != null) {
-      setState(() {
-        _dataController.text =
-            '${picked.day.toString().padLeft(2, '0')}/'
-            '${picked.month.toString().padLeft(2, '0')}/'
-            '${picked.year}';
-      });
-    }
-  }
+   Future<void> _pickDate() async {
+  final hoje = DateTime.now();
 
+  final pickedDate = await showDatePicker(
+    context: context,
+    locale: const Locale('pt', 'BR'),
+    initialDate: hoje,
+    firstDate: DateTime(2000),
+    lastDate: hoje,
+    builder: (ctx, child) {
+      return Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: AppColors.primary,
+            onPrimary: Colors.white,
+            onSurface: AppColors.textDark,
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+            ),
+          ),
+          dialogBackgroundColor: Colors.white,
+        ),
+        child: child!,
+      );
+    },
+  );
+
+  if (pickedDate == null) return;
+
+  if (!mounted) return;
+
+  final pickedTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+    builder: (ctx, child) {
+      return Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: AppColors.primary,
+            onPrimary: Colors.white,
+            onSurface: AppColors.textDark,
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+            ),
+          ),
+          dialogBackgroundColor: Colors.white,
+        ),
+        child: child!,
+      );
+    },
+  );
+
+  if (pickedTime == null) return;
+
+  final dateTime = DateTime(
+    pickedDate.year,
+    pickedDate.month,
+    pickedDate.day,
+    pickedTime.hour,
+    pickedTime.minute,
+  );
+
+  setState(() {
+    _dataController.text =
+        '${dateTime.day.toString().padLeft(2, '0')}/'
+        '${dateTime.month.toString().padLeft(2, '0')}/'
+        '${dateTime.year} '
+        '${dateTime.hour.toString().padLeft(2, '0')}:'
+        '${dateTime.minute.toString().padLeft(2, '0')}';
+  });
+}
+  
+  DateTime _parseData(String texto) {
+  final partes = texto.split(' ');
+
+  final data = partes[0].split('/');
+  final hora = partes[1].split(':');
+
+  return DateTime(
+    int.parse(data[2]),
+    int.parse(data[1]),
+    int.parse(data[0]),
+    int.parse(hora[0]),
+    int.parse(hora[1]),
+  );
+}
   /// Valida o form e persiste a atualização no Firestore.
   Future<void> _salvarAlteracoes() async {
     if (!_formKey.currentState!.validate()) return;
@@ -119,23 +192,15 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     final email = _authService.currentUser?.email;
     if (email == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Você precisa estar logado para editar uma ocorrência.',
-          ),
-        ),
-      );
+      Fluttertoast.showToast(
+          msg:
+              'Você precisa estar logado para editar uma ocorrência.',
+        );
       return;
     }
 
     // Converte o texto dd/mm/aaaa de volta para DateTime
-    final partesData = _dataController.text.split('/');
-    final dataConvertida = DateTime(
-      int.parse(partesData[2]),
-      int.parse(partesData[1]),
-      int.parse(partesData[0]),
-    );
+    final dataConvertida = _parseData(_dataController.text);
 
     // Mantém o ID e o criador original: a edição nunca sobrescreve quem criou
     final ocorrenciaAtualizada = Ocorrencia(
@@ -153,16 +218,17 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
     try {
       await _ocorrenciaService.atualizarOcorrencia(ocorrenciaAtualizada);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ocorrência atualizada com sucesso!')),
-      );
-      
+      Fluttertoast.showToast(
+          msg:
+              'Ocorrência atualizada com sucesso!',
+        );
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar: $e')),
-      );
+      Fluttertoast.showToast(
+          msg:
+              'Erro ao atualizar: $e',
+        );
     }
   }
 
@@ -249,7 +315,7 @@ class _EditarOcorrenciaPageState extends State<EditarOcorrenciaPage> {
       controller: _dataController,
       readOnly: true,
       onTap: _pickDate,
-      decoration: _inputDecoration(hint: 'dd/mm/aaaa'),
+      decoration: _inputDecoration(hint: 'dd/mm/aaaa hh:mm'),
     );
   }
 
