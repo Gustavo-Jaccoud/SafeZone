@@ -72,7 +72,7 @@ class CustomBottomNav extends StatelessWidget {
 
             BottomNavigationBarItem(
               icon: SvgPicture.asset('assets/images/minhas_ocorrencias.svg', height: 20, colorFilter: ColorFilter.mode(paginaAtual == 2 ?AppColors.primary:AppColors.textDark, BlendMode.srcIn)),
-              label: 'Minhas Ocorrências',
+              label: 'Suas Ocorrências',
             ),
           ],
         ),
