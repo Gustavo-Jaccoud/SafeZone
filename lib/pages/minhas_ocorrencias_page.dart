@@ -1,10 +1,13 @@
 import 'package:SafeZone/pages/editar_ocorrencias_page.dart';
+import 'package:SafeZone/theme/app_icons.dart';
 import 'package:flutter/material.dart';
 import '../models/ocorrencia.dart';
 import '../firebase/minhas_ocorrencias_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/ocorrencia_card.dart';
 import '../widgets/confirm_delete_dialog.dart';
+import '../services/auth_service.dart';
+import '../pages/login_start_page.dart';
 
 class MinhasOcorrenciasPage extends StatefulWidget {
   const MinhasOcorrenciasPage({super.key});
@@ -20,8 +23,18 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
   late Future<List<Ocorrencia>> _futureOcorrencias;
 
   static const _meses = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro',
   ];
 
   @override
@@ -57,9 +70,9 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
         _carregar(); // recarrega depois de excluir
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao excluir: $e')));
       }
     }
   }
@@ -67,18 +80,25 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
   void _editar(Ocorrencia o) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) =>  EditarOcorrenciaPage(ocorrencia: o,),
-      ),
+      MaterialPageRoute(builder: (_) => EditarOcorrenciaPage(ocorrencia: o)),
     );
   }
 
+  Future<void> _sair() async {
+    await AuthService().signOut();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginStartPage()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 30, 16, 70),
-      // FutureBuilder reconstrói a tela conforme o estado da busca
       child: FutureBuilder<List<Ocorrencia>>(
         future: _futureOcorrencias,
         builder: (context, snapshot) {
@@ -104,8 +124,43 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _ContadorCard(total: total),
+              Row(
+                children: [
+                  Expanded(child: _ContadorCard(total: total)),
+
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    height: 55,
+                    child: OutlinedButton.icon(
+                      onPressed: _sair,
+                      icon: const Icon(
+                        Icons.logout,
+                        size: 20,
+                        color: AppColors.danger,
+                      ),
+                      label: const Text(
+                        'Sair',
+                        style: TextStyle(
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                          color: AppColors.danger,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 12),
+
               Expanded(
                 child: ocorrencias.isEmpty
                     ? const _EmptyState()
@@ -114,7 +169,7 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
                           color: AppColors.white,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                        padding: const EdgeInsets.all(12),
                         child: ListView(
                           padding: EdgeInsets.zero,
                           children: [
@@ -148,7 +203,8 @@ class _ContadorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      height: 55,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -156,15 +212,14 @@ class _ContadorCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.assignment_outlined,
-              color: AppColors.textDark, size: 22),
+          AppIcons.boletim_ocorrencia,
           const SizedBox(width: 10),
           const Expanded(
             child: Text(
               'Suas Ocorrências:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 15,
                 color: AppColors.textDark,
               ),
             ),
@@ -191,8 +246,7 @@ class _CabecalhoMes extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.calendar_today_outlined,
-            size: 16, color: AppColors.textDark),
+        const Icon(Icons.calendar_month, size: 16, color: AppColors.textDark),
         const SizedBox(width: 6),
         Text(
           titulo,
@@ -255,8 +309,10 @@ class _ErroState extends StatelessWidget {
           ElevatedButton(
             onPressed: onTentarNovamente,
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Tentar novamente',
-                style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Tentar novamente',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

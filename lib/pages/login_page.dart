@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Lorem Ipsum is simply dummy\ntext of the printing',
+                'Seu app de Controle de Segurança',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: AppColors.primaryDark),
               ),
