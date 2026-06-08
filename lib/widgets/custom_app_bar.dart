@@ -1,16 +1,57 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../theme/app_colors.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBackButton;
-// Botão de voltar.
-  const CustomAppBar({ 
+
+  const CustomAppBar({
     super.key,
     this.showBackButton = false,
   });
 
   @override
   Size get preferredSize => const Size.fromHeight(67);
+
+  @override
+  State<CustomAppBar> createState() => _CustomAppBarState();
+}
+
+class _CustomAppBarState extends State<CustomAppBar> {
+  bool _isOffline = false;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    // Verifica o status inicial da conexão ao renderizar a AppBar
+    _checkInitialConnectivity();
+
+    // Escuta as alterações de rede em tempo real
+    _connectivitySubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) {
+      setState(() {
+        _isOffline = results.contains(ConnectivityResult.none);
+      });
+    });
+  }
+
+  Future<void> _checkInitialConnectivity() async {
+    final results = await Connectivity().checkConnectivity();
+    if (mounted) {
+      setState(() {
+        _isOffline = results.contains(ConnectivityResult.none);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel(); // Cancela o listener para evitar vazamento de memória
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +81,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   children: [
                     Row(
                       children: [
-                        if (showBackButton) ...[
+                        if (widget.showBackButton) ...[
                           IconButton(
                             icon: const Icon(
                               Icons.arrow_back_ios_new,
@@ -77,9 +118,36 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ],
                     ),
-                    Image.asset(
-                      'assets/images/logo.png',
-                      width: 55,
+                    
+                    // Seção Direita: Logo + Indicador Offline se necessário
+                    Row(
+                      children: [
+                        if (_isOffline) ...[
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.cloud_off,
+                                color: Colors.redAccent,
+                                size: 20,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Offline',
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 10), // Espaço entre o aviso e o logo
+                        ],
+                        Image.asset(
+                          'assets/images/logo.png',
+                          width: 55,
+                        ),
+                      ],
                     ),
                   ],
                 ),

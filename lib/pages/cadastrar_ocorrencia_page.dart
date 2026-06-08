@@ -6,8 +6,7 @@ import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/firebase/ocorrencia_service.dart';
 import 'package:SafeZone/services/auth_service.dart';
-
-/// Só funciona com o commit de Danilo
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:SafeZone/widgets/custom_app_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
@@ -209,55 +208,77 @@ final minuto = int.tryParse(horaPartes[1]);
   }
 
   /// Executa a validação do form e persiste a ocorrência no Firestore.
-  Future<void> _cadastrar() async {
-    if (!_formKey.currentState!.validate()) return;
 
-    if (_latitude == null || _longitude == null) {
-      final position = await _locationService.getCurrentLocation();
-      if (position == null) {
-        if (!mounted) return;
-        Fluttertoast.showToast(
-          msg:
-              'Não foi possível obter as coordenadas. Use o botão de localização.',
-        );
-        return;
-      }
-      _latitude = position.latitude;
-      _longitude = position.longitude;
-    }
 
-    // Captura dinamicamente o e-mail do usuário logado
-    final email = _authService.currentUser?.email;
-    if (email == null) {
+Future<void> _cadastrar() async {
+  // 1. Validação dos campos do formulário
+  if (!_formKey.currentState!.validate()) return;
+
+  // 2. Validação e busca das coordenadas de GPS
+  if (_latitude == null || _longitude == null) {
+    final position = await _locationService.getCurrentLocation();
+    if (position == null) {
       if (!mounted) return;
       Fluttertoast.showToast(
-        msg: 'Você precisa estar logado para cadastrar uma ocorrência.',
+        msg: 'Não foi possível obter as coordenadas. Use o botão de localização.',
       );
       return;
     }
-
-    // Sem id: o Firestore gera o identificador do documento automaticamente no .add()
-    final novaOcorrencia = Ocorrencia(
-      tipo: _tipoSelecionado!,
-      endereco: _enderecoController.text.trim(),
-      data: _parseData(_dataController.text),
-      descricao: _descricaoController.text.trim(),
-      latitude: _latitude!,
-      longitude: _longitude!,
-      criadoPor: email, // Amarração dinâmica: quem criou o registro
-    );
-
-    try {
-      await _ocorrenciaService.registrarOcorrencia(novaOcorrencia);
-      if (!mounted) return;
-      Fluttertoast.showToast(msg: 'Ocorrência cadastrada com sucesso!');
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (!mounted) return;
-      Fluttertoast.showToast(msg: 'Erro ao cadastrar: $e');
-    }
+    _latitude = position.latitude;
+    _longitude = position.longitude;
   }
 
+  // 3. Captura dinamicamente o e-mail do usuário logado
+  final email = _authService.currentUser?.email;
+  if (email == null) {
+    if (!mounted) return;
+    Fluttertoast.showToast(
+      msg: 'Você precisa estar logado para cadastrar uma ocorrência.',
+    );
+    return;
+  }
+
+  // 4. Criação do objeto com os dados preenchidos
+  final novaOcorrencia = Ocorrencia(
+    tipo: _tipoSelecionado!,
+    endereco: _enderecoController.text.trim(),
+    data: _parseData(_dataController.text),
+    descricao: _descricaoController.text.trim(),
+    latitude: _latitude!,
+    longitude: _longitude!,
+    criadoPor: email, 
+  );
+
+  // 5. Checa a internet apenas para decidir qual mensagem exibir
+  final resultadoConexao = await Connectivity().checkConnectivity();
+  final estaOffline = resultadoConexao.contains(ConnectivityResult.none);
+
+  // 6. Envio dos dados (O Firestore gerencia o envio de ambos os casos)
+  try {
+    // Mandamos para o Firestore sem 'await' para o app ser instantâneo
+    _ocorrenciaService.registrarOcorrencia(novaOcorrencia);
+    
+    if (!mounted) return;
+
+    // Exibe a mensagem certa baseada no status da internet
+    if (estaOffline) {
+      Fluttertoast.showToast(
+        msg: 'Sem internet! Ocorrência salva localmente e será enviada depois.',
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: 'Ocorrência cadastrada com sucesso!',
+      );
+    }
+    
+    // Fecha a tela atual
+    Navigator.pop(context, true);
+    
+  } catch (e) {
+    if (!mounted) return;
+    Fluttertoast.showToast(msg: 'Erro ao cadastrar: $e');
+  }
+}
   /// Converte a string formatada em dd/MM/yyyy para um objeto [DateTime].
   DateTime _parseData(String texto) {
   final partes = texto.split(' ');

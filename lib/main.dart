@@ -1,8 +1,9 @@
 import 'package:SafeZone/app/app_shell.dart';
 import 'package:SafeZone/pages/login_start_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +16,9 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
   await dotenv.load(fileName: ".env");
 
   final token = dotenv.env['MAPBOX_TOKEN'];
