@@ -18,5 +18,5 @@
 | SafeZone | Idel | API de Ocorrências |
 | SafeZone | Everton | API de Minhas Ocorrências | https://drive.google.com/drive/folders/1uiSpz309F9aG7vlnqY2dgB6tq39hpV24 |
 | SafeZone | Pedro | Criar ocorrências, Editar ocorrências |
-| SafeZone | Danilo | Login, Cadastro de usuários e autenticação| Link video de funcionamento do projeto: https://drive.google.com/file/d/1i8dh76_hEeZKYj5iiT1s5FPK_VQ2OVZN/view?usp=drive_link
+| SafeZone | Danilo | Login, Cadastro de usuários e autenticação| https://drive.google.com/file/d/1i8dh76_hEeZKYj5iiT1s5FPK_VQ2OVZN/view?usp=drive_link
 
