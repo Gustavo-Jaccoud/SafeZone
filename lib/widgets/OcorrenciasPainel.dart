@@ -37,6 +37,7 @@ class OcorrenciasPainel extends StatelessWidget {
               ),
             ),
           ),
+          
           Expanded(
             child: ListView(
               controller: scrollController,
@@ -44,9 +45,12 @@ class OcorrenciasPainel extends StatelessWidget {
               children: [
                 _buildResumoCard(),
                 const SizedBox(height: 16),
+
                 _buildGraficoCard(),
                 const SizedBox(height: 16),
+
                 _buildListaOcorrenciasReais(),
+                
                 const SizedBox(height: 120),
               ],
             ),
@@ -58,6 +62,7 @@ class OcorrenciasPainel extends StatelessWidget {
 
   Widget _buildResumoCard() {
     final totalOcorrencias = ocorrencias.length;
+    
     String maisComum = 'Nenhum';
     if (ocorrencias.isNotEmpty) {
       final contagem = <TipoOcorrencia, int>{};
@@ -68,6 +73,28 @@ class OcorrenciasPainel extends StatelessWidget {
           .reduce((a, b) => a.value > b.value ? a : b)
           .key
           .label;
+    }
+
+    String nivelPerigoTexto = 'Nenhum';
+    Color nivelPerigoCor = AppColors.primary;
+
+    if (ocorrencias.isNotEmpty) {
+      double somaRisco = 0;
+      for (var o in ocorrencias) {
+        somaRisco += o.tipo.risk; 
+      }
+      double mediaRisco = somaRisco / totalOcorrencias;
+
+      if (mediaRisco >= 7) {
+        nivelPerigoTexto = 'Alto';
+        nivelPerigoCor = AppColors.danger;
+      } else if (mediaRisco >= 4) {
+        nivelPerigoTexto = 'Médio';
+        nivelPerigoCor = AppColors.warning;
+      } else {
+        nivelPerigoTexto = 'Baixo';
+        nivelPerigoCor = AppColors.primary;
+      }
     }
 
     return Container(
@@ -87,6 +114,7 @@ class OcorrenciasPainel extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     children: [
+                      // Quantidade real totalizada
                       TextSpan(
                         text: '${totalOcorrencias.toString().padLeft(2, '0')} ', 
                         style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold, fontSize: 18),
@@ -104,13 +132,17 @@ class OcorrenciasPainel extends StatelessWidget {
             children: [
               Text('Mais comum: $maisComum', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
               const SizedBox(height: 4),
+              // TAG TOTALMENTE ADAPTÁVEL:
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.2),
+                  color: nivelPerigoCor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text('Médio', style: TextStyle(color: AppColors.warning, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text(
+                  nivelPerigoTexto, 
+                  style: TextStyle(color: nivelPerigoCor, fontWeight: FontWeight.bold, fontSize: 12),
+                ),
               ),
             ],
           ),
@@ -121,7 +153,7 @@ class OcorrenciasPainel extends StatelessWidget {
 
   Widget _buildGraficoCard() {
     if (ocorrencias.isEmpty) {
-      return const SizedBox.shrink();
+      return const SizedBox.shrink(); 
     }
 
     final mapaContagem = <TipoOcorrencia, int>{};
@@ -217,6 +249,7 @@ class OcorrenciasPainel extends StatelessWidget {
       children: listaOrdenada.map((ocorrencia) {
         String tagText = "Baixo";
         Color tagColor = AppColors.primary;
+        
         if (ocorrencia.tipo.risk >= 7) {
           tagText = "Alto";
           tagColor = AppColors.danger;
@@ -260,7 +293,7 @@ class OcorrenciasPainel extends StatelessWidget {
               ),
             ],
           ),
-        ); // <--- PARÊNTESE E PONTO E VÍRGULA FECHADOS CORRETAMENTE AQUI!
+        ); 
       }).toList(),
     );
   }
