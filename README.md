@@ -8,7 +8,7 @@
 | SafeZone | Idel | Ocorrências |
 | SafeZone | Everton | Minhas Ocorrências |
 | SafeZone | Pedro | Criar ocorrências, Editar ocorrências |
-| SafeZone | Danilo | Login, Criar Cadastro |
+| SafeZone | Danilo | Login, Criar Cadastro, Recuperação de Senha |
 
 ## Back-end
 
@@ -18,4 +18,4 @@
 | SafeZone | Idel | API de Ocorrências |
 | SafeZone | Everton | API de Minhas Ocorrências |
 | SafeZone | Pedro | Criar ocorrências, Editar ocorrências |
-| SafeZone | Danilo | Login, Cadastro de usuários e autenticação |
+| SafeZone | Danilo | Login, Cadastro de usuários e autenticação | Link video de funcionamento do projeto: https://drive.google.com/file/d/1i8dh76_hEeZKYj5iiT1s5FPK_VQ2OVZN/view?usp=drive_link
