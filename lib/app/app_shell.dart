@@ -5,6 +5,8 @@ import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/widgets/custom_app_bar.dart';
 import 'package:SafeZone/widgets/custom_bottom_nav.dart';
 import 'package:SafeZone/widgets/OcorrenciasPainel.dart';
+import 'package:SafeZone/models/ocorrencia.dart'; // 1. IMPORTANTE: Adiciona o import do modelo
+import 'package:SafeZone/firebase/ocorrencia_service.dart'; // 2. IMPORTANTE: Adiciona o import do serviço
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -24,10 +26,27 @@ class _AppShellState extends State<AppShell> {
   bool exibirPainelOcorrencias = false;
 
   final locationService = LocationService();
+  final ocorrenciaService = OcorrenciaService(); 
+
+  List<Ocorrencia> ocorrenciasProximas = [];
 
   void _onLocationChanged(double newLat, double newLng) async {
     lat = newLat;
     lng = newLng;
+    
+    try {
+      final dados = await ocorrenciaService.buscarOcorrenciasProximas(
+        userLat: newLat,
+        userLng: newLng,
+        raioEmKm: 10,
+      );
+      setState(() {
+        ocorrenciasProximas = dados;
+      });
+    } catch (e) {
+      debugPrint("Erro ao carregar ocorrências no Shell: $e");
+    }
+
     final newPlace = await locationService.getPlaceFromCoords(newLat, newLng);
     if (newPlace != null && newPlace != place) {
       setState(() {
@@ -47,12 +66,18 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    final enderecoTexto = (place?.subLocality?.isNotEmpty == true)
+        ? place!.subLocality!
+        : "Localizando...";
+
     final List<Widget> paginas = [
       Padding(
         padding: const EdgeInsets.only(top: 80),
         child: HomePage(
           onLocationChanged: _onLocationChanged,
           onCadastrarPressed: _onCadastrarPressed,
+          ocorrencias: ocorrenciasProximas, 
+          enderecoAtual: enderecoTexto, 
         ),
       ),
       const Center(child: Text('Ocorrências')),
@@ -76,11 +101,8 @@ class _AppShellState extends State<AppShell> {
               minChildSize: 0.2,
               maxChildSize: 0.88,
               builder: (context, scrollController) {
-                // Adicionamos um NotificationListener para detectar se o usuário 
-                // arrastou o painel todo para baixo para fechar
                 return NotificationListener<DraggableScrollableNotification>(
                   onNotification: (notification) {
-                    // Se o usuário arrastou para o tamanho mínimo (0.2), fechamos o painel
                     if (notification.extent <= 0.21) {
                       setState(() {
                         exibirPainelOcorrencias = false;
@@ -88,24 +110,22 @@ class _AppShellState extends State<AppShell> {
                     }
                     return true;
                   },
-                  child: OcorrenciasPainel(scrollController: scrollController),
+                  child: OcorrenciasPainel(
+                    scrollController: scrollController,
+                    ocorrencias: ocorrenciasProximas, 
+                  ),
                 );
               },
             ),
         ],
       ),
       bottomNavigationBar: CustomBottomNav(
-        // LOGICA VISUAL: Se o painel estiver aberto, força a BottomNav a acender o ícone 1 (Ocorrências).
-        // Se o painel fechar, ela volta automaticamente para o valor de paginaAtual (0 - Home).
         paginaAtual: exibirPainelOcorrencias ? 1 : paginaAtual,
-        enderecoAtual: (place?.subLocality?.isNotEmpty == true)
-            ? place!.subLocality!
-            : "Localizando...",
+        enderecoAtual: enderecoTexto,
         onTap: (index) {
           if (index == 1) {
             setState(() {
               exibirPainelOcorrencias = !exibirPainelOcorrencias;
-              // Se estamos abrindo o painel, garantimos que a página base de fundo seja a Home (0)
               if (exibirPainelOcorrencias) {
                 paginaAtual = 0;
               }

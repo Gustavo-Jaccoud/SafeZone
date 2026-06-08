@@ -11,11 +11,16 @@ import 'package:flutter/material.dart';
 class HomePage extends StatefulWidget {
   final Function(double, double) onLocationChanged;
   final VoidCallback onCadastrarPressed;
+  
+  final List<Ocorrencia> ocorrencias;
+  final String enderecoAtual;
 
   const HomePage({
     super.key,
     required this.onLocationChanged,
     required this.onCadastrarPressed,
+    required this.ocorrencias,   
+    required this.enderecoAtual,  
   });
 
   @override
@@ -25,6 +30,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   double? lat;
   double? lng;
+  
+  List<Ocorrencia> _ocorrenciasProximas = [];
+  final _ocorrenciaService = OcorrenciaService();
+
+  Future<void> _buscarDadosDoFirebase(double latitude, double longitude) async {
+    try {
+      final dados = await _ocorrenciaService.buscarOcorrenciasProximas(
+        userLat: latitude,
+        userLng: longitude,
+        raioEmKm: 10, 
+      );
+      
+      setState(() {
+        _ocorrenciasProximas = dados;
+      });
+    } catch (e) {
+      debugPrint("Erro ao carregar ocorrências próximas: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +59,9 @@ class _HomePageState extends State<HomePage> {
           onLocationChanged: (newLat, newLng) {
             lat = newLat;
             lng = newLng;
+            
+            _buscarDadosDoFirebase(newLat, newLng);
+            
             widget.onLocationChanged(newLat, newLng);
           },
         ),
