@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   
   mapbox_maps_flutter: ^2.0.0
   flutter_compass: ^0.8.0
@@ -50,6 +52,7 @@ dependencies:
   firebase_auth: ^6.5.1
   cloud_firestore: ^6.5.0
   google_sign_in: 6.1.5
+  fluttertoast: ^9.1.0
 
 dev_dependencies:
   flutter_test:

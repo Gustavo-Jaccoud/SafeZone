@@ -77,20 +77,7 @@ class _HomePageState extends State<HomePage> {
             height: 58,
             child: FloatingActionButton(
               heroTag: "left_action_2",
-              onPressed: () async {
-                final ocorrenciaService = OcorrenciaService();
-
-                await ocorrenciaService.registrarOcorrencia(
-                  Ocorrencia(
-                    tipo: TipoOcorrencia.roubo,
-                    descricao: 'Roubo de celular na rua',
-                    data: DateTime.now(),
-                    endereco: "dfçdfkçlskdfçlsk",
-                    latitude: lat!,
-                    longitude: lng!,
-                  ),
-                );
-              },
+              onPressed: widget.onCadastrarPressed,
               shape: const CircleBorder(),
               backgroundColor: AppColors.white,
               child: AppIcons.nova_ocorrencia,

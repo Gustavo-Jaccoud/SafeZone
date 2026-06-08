@@ -5,8 +5,11 @@ import 'package:SafeZone/theme/app_colors.dart';
 import 'package:SafeZone/models/ocorrencia.dart';
 import 'package:SafeZone/services/location_service.dart';
 import 'package:SafeZone/firebase/ocorrencia_service.dart';
-import 'package:SafeZone/services/auth_service.dart'; /// Só funciona com o commit de Danilo
+import 'package:SafeZone/services/auth_service.dart';
+
+/// Só funciona com o commit de Danilo
 import 'package:SafeZone/widgets/custom_app_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 
 class CadastrarOcorrenciaPage extends StatefulWidget {
@@ -68,9 +71,9 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       if (placemark != null && mounted) {
         final endereco = [
           placemark.street,
-          placemark.subThoroughfare, 
-          placemark.subLocality, 
-          placemark.locality, 
+          placemark.subThoroughfare,
+          placemark.subLocality,
+          placemark.locality,
         ].where((e) => e != null && e.trim().isNotEmpty).join(', ');
 
         setState(() {
@@ -85,54 +88,115 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
   }
 
   /// Exibe o calendário para seleção da data da ocorrência e atualiza o respectivo controlador.
-  Future<void> _pickDate() async {
-    final hoje = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: hoje,
-      firstDate: DateTime(2000),
-      lastDate: hoje,
-      builder: (ctx, child) => Theme(
+ Future<void> _pickDate() async {
+  final hoje = DateTime.now();
+
+  final pickedDate = await showDatePicker(
+    context: context,
+    locale: const Locale('pt', 'BR'),
+    initialDate: hoje,
+    firstDate: DateTime(2000),
+    lastDate: hoje,
+    builder: (ctx, child) {
+      return Theme(
         data: Theme.of(ctx).copyWith(
           colorScheme: const ColorScheme.light(
             primary: AppColors.primary,
             onPrimary: Colors.white,
+            onSurface: AppColors.textDark,
           ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+            ),
+          ),
+          dialogBackgroundColor: Colors.white,
         ),
         child: child!,
-      ),
-    );
-    if (picked != null) {
-      setState(() {
-        _dataController.text =
-            '${picked.day.toString().padLeft(2, '0')}/'
-            '${picked.month.toString().padLeft(2, '0')}/'
-            '${picked.year}';
-      });
-    }
-  }
+      );
+    },
+  );
 
+  if (pickedDate == null) return;
+
+  if (!mounted) return;
+
+  final pickedTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+    builder: (ctx, child) {
+      return Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: AppColors.primary,
+            onPrimary: Colors.white,
+            onSurface: AppColors.textDark,
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+            ),
+          ),
+          dialogBackgroundColor: Colors.white,
+        ),
+        child: child!,
+      );
+    },
+  );
+
+  if (pickedTime == null) return;
+
+  final dateTime = DateTime(
+    pickedDate.year,
+    pickedDate.month,
+    pickedDate.day,
+    pickedTime.hour,
+    pickedTime.minute,
+  );
+
+  setState(() {
+    _dataController.text =
+        '${dateTime.day.toString().padLeft(2, '0')}/'
+        '${dateTime.month.toString().padLeft(2, '0')}/'
+        '${dateTime.year} '
+        '${dateTime.hour.toString().padLeft(2, '0')}:'
+        '${dateTime.minute.toString().padLeft(2, '0')}';
+  });
+}
   /// Valida o formato e a coerência da data inserida.
   String? _validarData(String? valor) {
     if (valor == null || valor.isEmpty) {
       return 'Informe a data da ocorrência';
     }
 
-    final regex = RegExp(r'^\d{2}/\d{2}/\d{4}$');
+    final regex = RegExp(r'^\d{2}/\d{2}/\d{4}\s\d{2}:\d{2}$');
     if (!regex.hasMatch(valor)) {
-      return 'Use o formato dd/mm/aaaa';
+      return 'Use o formato dd/mm/aaaa hh:mm';
     }
 
-    final partes = valor.split('/');
-    final dia = int.tryParse(partes[0]);
-    final mes = int.tryParse(partes[1]);
-    final ano = int.tryParse(partes[2]);
+    final partes = valor.split(' ');
+
+final dataPartes = partes[0].split('/');
+final horaPartes = partes[1].split(':');
+
+final dia = int.tryParse(dataPartes[0]);
+final mes = int.tryParse(dataPartes[1]);
+final ano = int.tryParse(dataPartes[2]);
+
+final hora = int.tryParse(horaPartes[0]);
+final minuto = int.tryParse(horaPartes[1]);
 
     if (dia == null || mes == null || ano == null) return 'Data inválida';
     if (mes < 1 || mes > 12) return 'Mês inválido (01–12)';
     if (dia < 1 || dia > 31) return 'Dia inválido (01–31)';
 
-    final data = DateTime(ano, mes, dia);
+    final data = DateTime(
+  ano,
+  mes,
+  dia,
+  hora ?? 0,
+  minuto ?? 0,
+);
     if (data.day != dia || data.month != mes || data.year != ano) {
       return 'Data inexistente';
     }
@@ -152,12 +216,9 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       final position = await _locationService.getCurrentLocation();
       if (position == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
+        Fluttertoast.showToast(
+          msg:
               'Não foi possível obter as coordenadas. Use o botão de localização.',
-            ),
-          ),
         );
         return;
       }
@@ -165,16 +226,12 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       _longitude = position.longitude;
     }
 
-    // Captura dinamicamente o e-mail do usuário logado 
+    // Captura dinamicamente o e-mail do usuário logado
     final email = _authService.currentUser?.email;
     if (email == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Você precisa estar logado para cadastrar uma ocorrência.',
-          ),
-        ),
+      Fluttertoast.showToast(
+        msg: 'Você precisa estar logado para cadastrar uma ocorrência.',
       );
       return;
     }
@@ -185,36 +242,37 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       endereco: _enderecoController.text.trim(),
       data: _parseData(_dataController.text),
       descricao: _descricaoController.text.trim(),
-      latitude:  _latitude!, 
-      longitude:  _longitude!,
+      latitude: _latitude!,
+      longitude: _longitude!,
       criadoPor: email, // Amarração dinâmica: quem criou o registro
     );
 
-    // Chamada real ao Firestore (substitui o antigo debugPrint)
     try {
       await _ocorrenciaService.registrarOcorrencia(novaOcorrencia);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ocorrência cadastrada com sucesso!')),
-      );
-      Navigator.pop(context, true); // volta sinalizando que houve cadastro
+      Fluttertoast.showToast(msg: 'Ocorrência cadastrada com sucesso!');
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao cadastrar: $e')),
-      );
+      Fluttertoast.showToast(msg: 'Erro ao cadastrar: $e');
     }
   }
 
   /// Converte a string formatada em dd/MM/yyyy para um objeto [DateTime].
   DateTime _parseData(String texto) {
-    final partes = texto.split('/');
-    return DateTime(
-      int.parse(partes[2]),
-      int.parse(partes[1]),
-      int.parse(partes[0]),
-    );
-  }
+  final partes = texto.split(' ');
+
+  final data = partes[0].split('/');
+  final hora = partes[1].split(':');
+
+  return DateTime(
+    int.parse(data[2]),
+    int.parse(data[1]),
+    int.parse(data[0]),
+    int.parse(hora[0]),
+    int.parse(hora[1]),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +373,7 @@ class _CadastrarOcorrenciaPageState extends State<CadastrarOcorrenciaPage> {
       readOnly: true,
       onTap: _pickDate,
       validator: _validarData,
-      decoration: _inputDecoration(hint: 'dd/mm/aaaa'),
+      decoration: _inputDecoration(hint: 'dd/mm/aaaa hh:mm'),
     );
   }
 
