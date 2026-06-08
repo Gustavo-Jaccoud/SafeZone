@@ -1,3 +1,4 @@
+import 'package:SafeZone/pages/editar_ocorrencias_page.dart';
 import 'package:flutter/material.dart';
 import '../models/ocorrencia.dart';
 import '../firebase/minhas_ocorrencias_service.dart';
@@ -64,16 +65,19 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
   }
 
   void _editar(Ocorrencia o) {
-    // TODO: integrar com a tela de edição do Pedro quando estiver pronta
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Editar ocorrência: ${o.tipo.label}')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>  EditarOcorrenciaPage(ocorrencia: o,),
+      ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 30, 16, 70),
       // FutureBuilder reconstrói a tela conforme o estado da busca
       child: FutureBuilder<List<Ocorrencia>>(
         future: _futureOcorrencias,
@@ -107,7 +111,7 @@ class _MinhasOcorrenciasPageState extends State<MinhasOcorrenciasPage> {
                     ? const _EmptyState()
                     : Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F1F1),
+                          color: AppColors.white,
                           borderRadius: BorderRadius.circular(14),
                         ),
                         padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
